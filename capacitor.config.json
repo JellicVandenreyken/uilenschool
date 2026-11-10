@@ -1,0 +1,7 @@
+{
+  "appId": "be.uilenschool.app",
+  "appName": "Uilenschool",
+  "webDir": "www",
+  "android": { "backgroundColor": "#fff4dc" },
+  "ios": { "backgroundColor": "#fff4dc", "contentInset": "never" }
+}

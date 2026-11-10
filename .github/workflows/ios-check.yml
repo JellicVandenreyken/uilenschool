@@ -1,0 +1,25 @@
+name: iOS testbouw (zonder ondertekening)
+
+# Controleert of de iPhone-app bouwt, op een Mac van GitHub.
+# Alleen handmatig starten (tabblad Actions > Run workflow): macOS-minuten zijn duur.
+# Om de app echt op een iPhone te zetten is een Apple Developer-account nodig (zie README).
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx cap sync ios
+      - name: Bouwen voor de iOS-simulator
+        working-directory: ios/App
+        run: |
+          xcodebuild -project App.xcodeproj -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build | tail -n 40

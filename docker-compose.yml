@@ -1,0 +1,7 @@
+services:
+  uilenschool:
+    build: .
+    container_name: uilenschool
+    ports:
+      - "8080:80"
+    restart: unless-stopped

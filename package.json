@@ -1,0 +1,19 @@
+{
+  "name": "uilenschool-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Uilenschool als Android- en iPhone-app (Capacitor)",
+  "scripts": {
+    "sync": "cap sync",
+    "android": "cap sync android && cap open android",
+    "ios": "cap sync ios && cap open ios",
+    "icons": "npx @capacitor/assets generate --iconBackgroundColor '#ffc93c' --splashBackgroundColor '#fff4dc' --android --ios"
+  },
+  "dependencies": {
+    "@capacitor-community/text-to-speech": "^8.0.2",
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/ios": "^8.6.0"
+  }
+}
