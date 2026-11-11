@@ -39,7 +39,8 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .cls:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
 .cls .ico{font-size:50px;line-height:1.1}.cls .nm{font-size:19px;text-align:center}.cls .sub{font-size:13px;color:var(--soft)}
 .cls.k{background:#fff0c9}.cls.l{background:#e9f3ff}
-.menuhead{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.menuhead{display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+@media (max-width:560px){.menuhead .lv{margin-left:0;width:100%;justify-content:flex-end}.lvbtn{padding:8px 10px;font-size:14px}}
 .menuhead h1{margin:0;font-size:clamp(24px,5vw,38px)}
 .menuhead .lv{margin-left:auto;display:flex;gap:6px}
 .lvbtn{padding:10px 14px;border-radius:999px;border:3px solid var(--line);background:var(--paper);font-size:16px}
@@ -74,7 +75,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .opts{display:grid;gap:14px;margin:0 auto;width:100%;max-width:900px}
 .opts.c1{grid-template-columns:1fr;max-width:640px}
 .opts.c2{grid-template-columns:repeat(2,1fr)} .opts.c3{grid-template-columns:repeat(3,1fr)}
-.opts.c4{grid-template-columns:repeat(4,1fr)} .opts.c6{grid-template-columns:repeat(3,1fr)}
+.opts.c4{grid-template-columns:repeat(4,1fr)} .opts.c6{grid-template-columns:repeat(3,1fr)} .opts.c5{grid-template-columns:repeat(3,1fr)}
 .opts.flex{display:flex;flex-wrap:wrap;justify-content:center}
 @media (max-width:560px){.opts.c4{grid-template-columns:repeat(2,1fr)} .opts.tx.c3{grid-template-columns:1fr}}
 .opt{background:var(--paper);border:4px solid var(--line);border-radius:24px;min-height:120px;padding:10px;
@@ -200,7 +201,7 @@ table.goals th,table.goals td{text-align:left;padding:8px;border-bottom:1px soli
     <input id="rate" type="range" min="0.6" max="1.2" step="0.05">
     <label><input type="checkbox" id="sfx"> Geluidjes bij goed/fout</label>
     <p><button class="linkbtn" id="testVoice">🔊 Test de stem</button> &nbsp; <button class="linkbtn" id="resetStars">Sterren wissen</button></p>
-    <p class="small">Het niveau kies je bovenaan in het spelmenu van elke klas: <b>1</b> = begin van het schooljaar, <b>2</b> = einde van het schooljaar.</p>
+    <p class="small">Het niveau kies je bovenaan in het spelmenu van elke klas: ⭐ = begin van het schooljaar, ⭐⭐ = einde van het schooljaar, ⭐⭐⭐ = uitdaging (in de hoogste klas van een spel een extra moeilijke versie, anders een opstap naar de volgende klas).</p>
   </div>
 
   <h3>Vreemde talen</h3>
@@ -297,12 +298,15 @@ const LANGS = {
   en: { name: 'Engels', ico: '🇬🇧', code: 'en-GB', pref: [/^en[-_]GB/i, /^en/i] },
   de: { name: 'Duits', ico: '🇩🇪', code: 'de-DE', pref: [/^de[-_]DE/i, /^de/i] }
 };
+function refreshVoices() { if (!NATIVE_TTS && !voices.length) { try { voices = speechSynthesis.getVoices() || []; } catch (e) {} } }
 function voiceFor(lang) {
+  refreshVoices();
   if (!lang || lang === 'nl') return pickVoice();
   for (const re of LANGS[lang].pref) { const v = voices.find(x => re.test(x.lang)); if (v) return v; }
   return null;
 }
-const hasVoice = lang => !!voiceFor(lang);
+/* stem beschikbaar? Is de stemlijst (nog) leeg, zoals op iPad vaak gebeurt, dan gaan we ervan uit dat het toestel de taal kan uitspreken. */
+const hasVoice = lang => { refreshVoices(); return !voices.length || !!voiceFor(lang); };
 /* say(tekst) of say([[tekst, taal], …]) – vreemde taal zonder stem wordt overgeslagen (het spel toont dan de tekst) */
 function say(text, queue) {
   if (!text) return;
@@ -313,7 +317,7 @@ function sayOne(text, lang, queue) {
   if (!text) return;
   text = String(text).replace(/<[^>]+>/g, ' ').replace(/€\s?/g, '').replace(/___/g, '...').replace(/\s+/g, ' ');
   const v = voiceFor(lang);
-  if (lang !== 'nl' && !v) return;
+  /* geen passende stem in de lijst: toch uitspreken met de juiste taalcode, het toestel kiest dan zelf een stem */
   const code = v ? v.lang : (lang === 'nl' ? 'nl-BE' : LANGS[lang].code);
   if (NATIVE_TTS) {
     const opt = { text, lang: code, rate: settings.rate, pitch: 1.05, volume: 1, category: 'playback', queueStrategy: queue ? 1 : 0 };
@@ -650,8 +654,8 @@ G('getalbeelden', 'wis', '🎲', 'Getalbeelden', 'Getallen', {
   K3: ['Aantallen tot 5 herkennen zonder te tellen (niveau 1), getalbeelden tot 10 (niveau 2).', { max: 5 }, { max: 10 }, '2.1.9']
 }, p => {
   const n = 1 + rnd(p.max);
-  return { text: `Waar zie je ${N[n]}?`, stage: `<div class="bignum">${n}</div>`, cols: 3,
-    options: mkOpts(n, shuffle([n - 1, n + 1, n + 2, n - 2]), 2, tenframe, 1) };
+  return { text: `Waar zie je ${N[n]}?`, stage: p.noDigit ? '' : `<div class="bignum">${n}</div>`, cols: p.k === 3 ? 2 : 3,
+    options: mkOpts(n, shuffle([n - 1, n + 1, n + 2, n - 2]), p.k || 2, tenframe, 1) };
 });
 
 G('meerminder', 'wis', '⚖️', 'Meer of minder', 'Getallen', {
@@ -721,6 +725,7 @@ const SUMS = {
   spec() { const r = rnd(6); if (r === 0) { const a = 4 * rint(3, 40); return [a, '×', 25]; } if (r === 1) { const a = 2 * rint(3, 50); return [a, '×', 0.5]; }
     if (r === 2) { const a = rint(11, 99); return [a, ':', 0.5]; } if (r === 3) { const a = rint(12, 60); return [a, '×', 50]; }
     if (r === 4) { const a = r3(rint(11, 999) / 10); return [a, '×', 0.1]; } const a = rint(12, 30); return [a, '×', pick([4, 8])]; },
+  decmul() { const b = pick([0.2, 0.4, 0.5, 0.25, 1.5, 2.5]), k = rint(2, 40), a = r3(rint(11, 99) / 10); return Math.random() < .5 ? [a, '×', b] : [r3(k * b), ':', b]; },
   dec3() { const a = r3(rint(1000, 9999) / 1000), b = r3(rint(1, 999) / 1000); return Math.random() < .5 ? [a, '+', b] : [a, '-', b]; }
 };
 const OPW = { '+': 'plus', '-': 'min', '×': 'maal', ':': 'gedeeld door' };
@@ -743,11 +748,11 @@ G('splitsen', 'wis', '🏠', 'Splitshuis', 'Getallen', {
   L1: ['Getallen splitsen tot 6 (niveau 1) en tot 10 (niveau 2).', { max: 6 }, { max: 10 }],
   L2: ['Splitsingen tot 10 paraat (niveau 1) en tot 20 (niveau 2).', { max: 10 }, { max: 20 }, '2.1.1']
 }, p => {
-  const n = p.max === 20 ? rint(11, 20) : rint(2, p.max), a = rint(0, n), ans = n - a;
+  const n = p.tens ? 10 * rint(3, 10) : p.max === 20 ? rint(11, 20) : rint(2, p.max), a = p.tens ? 10 * rint(1, n / 10 - 1) : rint(0, n), ans = n - a;
   const roof = `<svg viewBox="0 0 220 200" class="svgm"><polygon points="110,6 214,80 6,80" fill="#ff7a59" stroke="#3a2e28" stroke-width="4"/><text x="110" y="66" text-anchor="middle" font-size="42" font-weight="800" fill="#fff">${n}</text>
     <rect x="16" y="80" width="94" height="110" fill="#fff" stroke="#3a2e28" stroke-width="4"/><rect x="110" y="80" width="94" height="110" fill="#fff" stroke="#3a2e28" stroke-width="4"/>
     <text x="63" y="152" text-anchor="middle" font-size="48" font-weight="800" fill="#3a2e28">${a}</text><text x="157" y="152" text-anchor="middle" font-size="48" font-weight="800" fill="#ff7a59">?</text></svg>`;
-  return { text: `${cap(nw(n))} is ${nw(a)} en hoeveel?`, stage: roof, cols: 3, options: mkOpts(ans, shuffle([ans + 1, ans - 1, ans + 2, a]), 2) };
+  return { text: `${cap(nw(n))} is ${nw(a)} en hoeveel?`, stage: roof, cols: 3, options: mkOpts(ans, shuffle(p.tens ? [ans + 10, ans - 10, ans + 1, a] : [ans + 1, ans - 1, ans + 2, a]), 2) };
 });
 
 G('tafels', 'wis', '✖️', 'Tafels', 'Bewerkingen', {
@@ -791,6 +796,11 @@ G('klok', 'wis', '🕒', 'Klok kijken', 'Meten: tijd', {
     const c = shuffle([d(h, m), d(h24 + 1, m), d(h24, (m + 30) % 60), d(h24 === 12 ? 11 : h24 - 1, m), d(h24, 60 - m)]);
     return { text: `Het is 's ${part}. Welke digitale klok toont dezelfde tijd?`, stage: clockSVG(h, m), cols: 2, options: mkOpts(d(h24, m), c, 3, numOpt0) };
   }
+  if (p.mode === 'between') {
+    const s0 = rint(7, 18) * 60 + rint(0, 11) * 5, dur = rint(4, 30) * 5, e0 = s0 + dur, d = t => `${Math.floor(t / 60)}:${pad2(t % 60)}`;
+    return { text: `Een uitstap begint om ${d(s0)} en eindigt om ${d(e0)}. Hoeveel minuten duurt hij?`, stage: `<div class="bignr">${d(s0)} → ${d(e0)}</div>`, cols: 3,
+      options: mkOpts(dur, shuffle([dur + 10, dur - 10, dur + 40, Math.abs((e0 % 60) - (s0 % 60)) + 100 * (Math.floor(e0 / 60) - Math.floor(s0 / 60))]), 2, unitOpt('min'), 1) };
+  }
   const h = rint(7, 20), m = rint(0, 11) * 5, dur = pick([15, 25, 40, 45, 50, 75, 90, 105]);
   const tot = h * 60 + m + dur, d = t => `${Math.floor(t / 60) % 24}:${pad2(t % 60)}`;
   const c = shuffle([d(tot + 10), d(tot - 10), d(tot + 60), d(h * 60 + m + (dur % 60) + (dur >= 60 ? 100 : 0)), d(tot - 60)]);
@@ -809,6 +819,12 @@ G('geld', 'wis', '💶', 'Met geld', 'Meten: geld', {
     list.sort((a, b) => b - a);
     const sm = Math.min(...p.den);
     return { text: 'Hoeveel geld is dit?', stage: moneyPile(list), cols: 3, options: mkOpts(tot, shuffle([tot + sm, tot - sm, tot + 100, tot - list[list.length - 1], tot + 10 * sm]), 2, eurOpt, sm) };
+  }
+  if (p.two) {
+    const pay = 5000, a = rint(500, 2400), b = rint(500, 2400), back = pay - a - b;
+    return { text: `Je koopt een boek van ${eur(a)} en een spel van ${eur(b)}. Je betaalt met ${eur(pay)}. Hoeveel krijg je terug?`, say: `Je koopt een boek van ${eurSay(a)} en een spel van ${eurSay(b)}. Je betaalt met 50 euro. Hoeveel krijg je terug?`,
+      stage: `<span class="bigemo">📘</span><span class="tag2">${eur(a)}</span><span class="bigemo">🎲</span><span class="tag2">${eur(b)}</span>` + moneySVG(pay), cols: 3,
+      options: mkOpts(back, shuffle([back + 100, back - 100, a + b, back + 10, pay - a]), 2, eurOpt, 1) };
   }
   const pay = pick(p.pay), price = (p.unit === 1 ? rint(150, pay / 1 - 50) : rint(15, pay / 10 - 5) * 10), back = pay - price;
   const item = pick([['📘', 'een boek'], ['🧸', 'een knuffel'], ['⚽', 'een bal'], ['🎨', 'verf'], ['🪁', 'een vlieger']]);
@@ -896,6 +912,12 @@ G('breuken', 'wis', '🍕', 'Breuken', 'Getallen: breuken', {
     return { text: `Vereenvoudig zo ver als je kan.`, stage: expr(`${fracH(a * f, b * f)} = <span class="q">?</span>`), cols: 3,
       options: mkOpts(ans, shuffle(distinct(ans, [F(a + 1, b), F(a, b + 1), F(b, a), F(a * f, b), F(a, b * f)])), 2, fracOpt) };
   }
+  if (p.mode === 'addun') {
+    let b, d; do { b = pick([2, 3, 4, 5, 6, 8]); d = pick([2, 3, 4, 5, 6, 8]); } while (b === d);
+    const a = rint(1, b - 1), c = rint(1, d - 1), num = a * d + c * b, den = b * d, gg = gcd(num, den), ans = F(num / gg, den / gg);
+    return { text: `Hoeveel is ${fracSay(a, b)} plus ${fracSay(c, d)}? Vereenvoudig als het kan.`, stage: expr(`${fracH(a, b)} + ${fracH(c, d)} = <span class="q">?</span>`), cols: 3,
+      options: mkOpts(ans, shuffle(distinct(ans, [F(a + c, b + d), F(a + c, den), F(num, den + 1), F(a * c, den)])), 2, fracOpt) };
+  }
   const a = rint(1, 5), b = rint(a + 1, 9), c = rint(1, 5), d = rint(c + 1, 9), ans = F(a * c, b * d);
   return { text: `Hoeveel is ${fracSay(a, b)} maal ${fracSay(c, d)}?`, stage: expr(`${fracH(a, b)} × ${fracH(c, d)} = <span class="q">?</span>`), cols: 3,
     options: mkOpts(ans, shuffle(distinct(ans, [F(a + c, b + d), F(a * c, b + d), F(a * d, b * c), F(a + c, b * d)])), 2, fracOpt) };
@@ -918,6 +940,11 @@ G('procenten', 'wis', '％', 'Procenten', 'Getallen: procenten', {
     return { text: `Welk kommagetal is gelijk aan ${pc} procent?`, stage: expr(`${pc} % = <span class="q">?</span>`), cols: 3,
       options: mkOpts(d, shuffle([r3(d * 10), r3(d / 10), pc, r3(d + 0.05)]), 2) };
   }
+  if (p.mode === 'pct') {
+    const pc = pick([5, 10, 20, 25, 40, 50, 75]), base = 100 / gcd(pc, 100), whole = base * rint(1, Math.max(1, Math.floor(300 / base))), part = pc * whole / 100;
+    return { text: `${part} van de ${whole} leerlingen ${part === 1 ? 'komt' : 'komen'} met de fiets naar school. Hoeveel procent is dat?`, stage: expr(`${part} van ${whole} = <span class="q">?</span> %`), cols: 3,
+      options: mkOpts(pc, shuffle([pc + 5, pc - 5, 100 - pc, pc * 2, Math.round(part)]).filter(x => x > 0 && x <= 100), 2, v => `<span class="num s">${v} %</span>`, 1) };
+  }
   const price = rint(2, 30) * 20, pc = pick([10, 20, 25, 50]), up = Math.random() < .3, k = price * pc / 100, ans = up ? price + k : price - k;
   const item = pick([['🚲', 'Een fiets'], ['🧥', 'Een jas'], ['🎮', 'Een spelconsole'], ['👟', 'Een paar sportschoenen']]);
   return { text: `${item[1]} kost ${price} euro. ${up ? `De prijs stijgt met ${pc} procent. Wat is de nieuwe prijs?` : `Je krijgt ${pc} procent korting. Hoeveel betaal je?`}`,
@@ -932,24 +959,24 @@ G('vergelijken', 'ruimte', '📐', 'Groot, lang, zwaar', 'Meten', {
 }, p => {
   const kind = pick(p.kinds);
   if (kind === 'groot' || kind === 'klein') {
-    const e = pick([['🐻', 'beer'], ['🌳', 'boom'], ['🍎', 'appel'], ['🏠', 'huis'], ['🐟', 'vis']]), sizes = sample([34, 58, 90], 3);
-    const ans = kind === 'groot' ? 90 : 34;
-    return { text: `Welke ${e[1]} is het ${kind === 'groot' ? 'grootst' : 'kleinst'}?`, stage: '', cols: 3,
-      options: sizes.map(s => ({ html: `<span style="font-size:${s}px;line-height:1">${e[0]}</span>`, correct: s === ans })) };
+    const e = pick([['🐻', 'beer'], ['🌳', 'boom'], ['🍎', 'appel'], ['🏠', 'huis'], ['🐟', 'vis']]), sizes = p.n === 4 ? [30, 48, 68, 90] : sample([34, 58, 90], 3);
+    const ans = kind === 'groot' ? Math.max(...sizes) : Math.min(...sizes);
+    return { text: `Welke ${e[1]} is het ${kind === 'groot' ? 'grootst' : 'kleinst'}?`, stage: '', cols: sizes.length === 4 ? 4 : 3,
+      options: shuffle(sizes).map(s => ({ html: `<span style="font-size:${s}px;line-height:1">${e[0]}</span>`, correct: s === ans })) };
   }
   if (kind === 'lang' || kind === 'kort') {
-    const lens = sample([60, 100, 140, 180], 3), ans = kind === 'lang' ? Math.max(...lens) : Math.min(...lens), col = pick(['#ef4444', '#3b82f6', '#22c55e', '#a855f7']);
+    const lens = p.n === 4 ? sample([60, 90, 120, 150, 180], 4) : sample([60, 100, 140, 180], 3), ans = kind === 'lang' ? Math.max(...lens) : Math.min(...lens), col = pick(['#ef4444', '#3b82f6', '#22c55e', '#a855f7']);
     const pencil = l => `<svg class="optsvg" viewBox="0 0 200 40"><rect x="10" y="10" width="${l}" height="20" rx="3" fill="${col}" stroke="#3a2e28" stroke-width="2"/><polygon points="${10 + l},10 ${10 + l + 18},20 ${10 + l},30" fill="#f5d0a9" stroke="#3a2e28" stroke-width="2"/></svg>`;
-    return { text: `Welk potlood is het ${kind === 'lang' ? 'langst' : 'kortst'}?`, stage: '', cols: 3, options: lens.map(l => ({ html: pencil(l), correct: l === ans })) };
+    return { text: `Welk potlood is het ${kind === 'lang' ? 'langst' : 'kortst'}?`, stage: '', cols: lens.length === 4 ? 4 : 3, options: lens.map(l => ({ html: pencil(l), correct: l === ans })) };
   }
   if (kind === 'zwaar' || kind === 'licht') {
     const sets = [[['🐘', 3], ['🐶', 2], ['🐭', 1]], [['🚚', 3], ['🚲', 2], ['🪶', 1]], [['🍉', 3], ['🍎', 2], ['🍓', 1]], [['🐄', 3], ['🐑', 2], ['🐥', 1]]];
     const s = pick(sets), ans = kind === 'zwaar' ? 3 : 1;
     return { text: `Wat is het ${kind === 'zwaar' ? 'zwaarst' : 'lichtst'}?`, stage: '', cols: 3, options: shuffle(s).map(x => ({ html: emoOpt(x[0]), correct: x[1] === ans })) };
   }
-  const lv = sample([0.15, 0.5, 0.9], 3), ans = kind === 'vol' ? 0.9 : 0.15;
+  const lv = p.n === 4 ? shuffle([0.15, 0.4, 0.65, 0.9]) : sample([0.15, 0.5, 0.9], 3), ans = kind === 'vol' ? 0.9 : 0.15;
   const glass = f => `<svg class="optsvg" viewBox="0 0 100 120"><path d="M20 10 L28 110 H72 L80 10" fill="#fff" stroke="#3a2e28" stroke-width="4"/><clipPath id="c${f * 100}"><path d="M20 10 L28 110 H72 L80 10 Z"/></clipPath><rect x="0" y="${110 - f * 100}" width="100" height="${f * 100}" fill="#7cc4f4" clip-path="url(#c${f * 100})"/><path d="M20 10 L28 110 H72 L80 10" fill="none" stroke="#3a2e28" stroke-width="4"/></svg>`;
-  return { text: `Welk glas is het ${kind === 'vol' ? 'volst' : 'leegst'}?`, stage: '', cols: 3, options: lv.map(f => ({ html: glass(f), correct: f === ans })) };
+  return { text: `Welk glas is het ${kind === 'vol' ? 'volst' : 'leegst'}?`, stage: '', cols: lv.length === 4 ? 4 : 3, options: lv.map(f => ({ html: glass(f), correct: f === ans })) };
 });
 
 const UNITS = [
@@ -984,6 +1011,11 @@ G('meten', 'ruimte', '📏', 'Maten en eenheden', 'Meten', {
     const sayU = u => u.replace('m²', 'vierkante meter').replace('dm²', 'vierkante decimeter').replace('cm²', 'vierkante centimeter').replace('m³', 'kubieke meter').replace('dm³', 'kubieke decimeter').replace('cm³', 'kubieke centimeter');
     return { text: `${fmt(v)} ${from} = hoeveel ${to}?`, say: `${spk(v)} ${sayU(from)} is hoeveel ${sayU(to)}?`, stage: expr(`${fmt(v)} ${from} = <span class="q">?</span> ${to}`), cols: 3,
       options: mkOpts(ans, shuffle(c), 2, unitOpt(to)) };
+  }
+  if (p.hard) {
+    const v = pick([40, 60, 80, 90, 120]), t = pick([0.5, 1.5, 2, 2.5, 3]), d = v * t;
+    return { text: `Je rijdt ${d} km aan ${v} km per uur. Hoeveel uur duurt de rit?`, stage: '<span class="bigemo">🚗</span>', cols: 3,
+      options: mkOpts(t, shuffle([r3(t + 0.5), r3(t * 2), r3(d / 10), r3(t + 1)]).filter(x => x > 0), 2, unitOpt('uur')) };
   }
   const r = rnd(3);
   if (r === 0) { const v = rint(4, 12) * 10, t = rint(2, 4), ans = v * t;
@@ -1028,6 +1060,11 @@ G('oppervlakte', 'ruimte', '⬛', 'Omtrek en oppervlakte', 'Meetkunde', {
     return { text: `Wat is de oppervlakte van ${par ? 'dit parallellogram' : 'deze driehoek'}? De basis is ${b} cm, de hoogte ${h} cm.`, stage: svg, cols: 3,
       options: mkOpts(A, shuffle(par ? [b * h / 2, b + h, 2 * (b + h)] : [b * h, b + h, b * h / 2 + b]), 2, unitOpt('cm²'), 1) };
   }
+  if (p.mode === 'circlearea') {
+    const rr = rint(2, 10), ans = r3(rr * rr * 3.14);
+    return { text: `Een cirkel heeft een straal van ${rr} cm. Wat is de oppervlakte? Reken met pi is 3,14.`, stage: `<svg class="svgm" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="#ffd2c4" stroke="#ff7a59" stroke-width="4"/><line x1="100" y1="100" x2="180" y2="100" stroke="#3a2e28" stroke-width="3"/><text x="140" y="92" text-anchor="middle" font-size="20" font-weight="700">${rr} cm</text></svg>`, cols: 3,
+      options: mkOpts(ans, shuffle([r3(2 * rr * 3.14), r3(rr * 3.14), r3(4 * rr * rr * 3.14), r3(ans + 3.14)]), 2, unitOpt('cm²')) };
+  }
   const d = rint(2, 20), ans = r3(d * 3.14);
   return { text: `Een cirkel heeft een diameter van ${d} cm. Hoe lang is de omtrek? Reken met pi is 3,14.`, stage: `<svg class="svgm" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="#ffd2c4" stroke="#ff7a59" stroke-width="4"/><line x1="20" y1="100" x2="180" y2="100" stroke="#3a2e28" stroke-width="3"/><text x="100" y="92" text-anchor="middle" font-size="20" font-weight="700">${d} cm</text></svg>`, cols: 3,
     options: mkOpts(ans, shuffle([r3(d / 2 * 3.14), r3(d * d * 3.14), d * 3, r3(ans + 3.14)]), 2, unitOpt('cm')) };
@@ -1053,6 +1090,12 @@ G('hoeken', 'ruimte', '📐', 'Hoeken en lijnen', 'Meetkunde', {
   if (p.mode === 'est') {
     const deg = pick(p.set), wr = sample(p.set.filter(x => Math.abs(x - deg) >= 30), 2);
     return { text: 'Hoeveel graden is deze hoek ongeveer?', stage: angleSVG(deg), cols: 3, options: txtChoices(deg + '°', wr.map(x => x + '°'), v => `<span class="num s">${v}</span>`) };
+  }
+  if (p.mode === 'iso') {
+    const top = rint(4, 28) * 5, base = (180 - top) / 2;
+    if (!Number.isInteger(base)) return { text: 'In een gelijkbenige driehoek is de tophoek 40 graden. Hoe groot is elke basishoek?', stage: '<svg class="svgm" viewBox="0 0 240 190"><polygon points="20,170 220,170 120,20" fill="#ffd2c4" stroke="#ff7a59" stroke-width="3"/></svg>', cols: 3, options: mkOpts(70, [140, 50, 80], 2, v => `<span class="num s">${v}°</span>`, 1) };
+    return { text: `In een gelijkbenige driehoek is de tophoek ${top} graden. Hoe groot is elke basishoek?`, stage: `<svg class="svgm" viewBox="0 0 240 190"><polygon points="20,170 220,170 120,20" fill="#ffd2c4" stroke="#ff7a59" stroke-width="3"/><text x="120" y="62" text-anchor="middle" font-size="18" font-weight="700">${top}°</text><text x="48" y="160" font-size="22" font-weight="800" fill="#ff7a59">?</text><text x="182" y="160" font-size="22" font-weight="800" fill="#ff7a59">?</text></svg>`, cols: 3,
+      options: mkOpts(base, shuffle([180 - top, 90 - top / 2 | 0, base + 10, base - 10, top]), 2, v => `<span class="num s">${v}°</span>`, 1) };
   }
   let a, b; do { a = rint(4, 18) * 5; b = rint(4, 18) * 5; } while (a + b > 160);
   const c = 180 - a - b, A = a * Math.PI / 180, B = b * Math.PI / 180, base = 220, hx = base * Math.tan(B) / (Math.tan(A) + Math.tan(B)), hy = hx * Math.tan(A);
@@ -1099,6 +1142,10 @@ G('diagrammen', 'wis', '📊', 'Diagrammen', 'Data', {
   L5: ['Een lijndiagram aflezen en interpreteren.', { mode: 'line' }, { mode: 'linediff' }],
   L6: ['Gemiddelde (niveau 1) en mediaan (niveau 2) berekenen.', { mode: 'mean' }, { mode: 'median' }, '2.5.14']
 }, p => {
+  if (p.mode === 'meanbar') {
+    const items = sample(FRUIT, 4), m = rint(3, 6); let vals; do { const dv = [rint(-2, 2), rint(-2, 2), rint(-2, 2)]; vals = [...dv, -dv.reduce((a, b) => a + b, 0)].map(x => m + x); } while (vals.some(x => x < 1 || x > 9) || new Set(vals).size < 2);
+    return { text: 'Hoeveel kinderen kozen gemiddeld per fruitsoort?', stage: barChart(items, vals, 1, 'aantal kinderen'), cols: 3, options: mkOpts(m, shuffle([vals.reduce((a, b) => a + b, 0), m + 1, m - 1, Math.max(...vals)]), 2, numOpt, 1) };
+  }
   if (['read', 'diff', 'tot'].includes(p.mode)) {
     const items = sample(FRUIT, 4); let vals; do { vals = items.map(() => p.step * rint(1, 8)); } while (new Set(vals).size < 3);
     const chart = barChart(items, vals, p.step, 'aantal kinderen');
@@ -1148,6 +1195,11 @@ G('kansen', 'wis', '🎲', 'Kansen', 'Data', {
     const cand = [`${n[i]}/${tot - n[i]}`, `${n[(i + 1) % 3]}/${tot}`, `${tot - n[i]}/${tot}`, `1/${tot}`, `1/3`].filter(s => Math.abs(val(s) - val(ans)) > 1e-9 && !s.endsWith('/0'));
     return { text: `Hoe groot is de kans op een ${cs[i][1]} knikker?`, stage: `<div class="bigemo" style="font-size:40px;max-width:640px">👜 ${bag}</div>`, cols: 3, options: mkOpts(ans, shuffle(cand), 2, fracOpt) };
   }
+  if (p.mode === 'dice2') {
+    const EV2 = [['een som van 7', 6], ['een som van 2', 1], ['een som van 12', 1], ['twee keer hetzelfde getal', 6], ['een som van 10', 3], ['een som van 4', 3]], [ev, k] = pick(EV2), ans = `${k}/36`;
+    const cand = ['1/36', '2/36', '3/36', '4/36', '6/36', '5/36', '1/6', '1/12', '7/36'].filter(s2 => Math.abs(val(s2) - val(ans)) > 1e-9);
+    return { text: `Je gooit met twee dobbelstenen. Hoe groot is de kans op ${ev}?`, stage: '<span class="bigemo">🎲🎲</span>', cols: 3, options: mkOpts(ans, shuffle(cand), 2, fracOpt) };
+  }
   const EV = [['een even getal', 3], ['meer dan vier', 2], ['een zes', 1], ['minder dan drie', 2], ['een oneven getal', 3], ['meer dan één', 5], ['een getal kleiner dan zeven', 6]];
   const [ev, k] = pick(EV), ans = `${k}/6`;
   const cand = ['1/6', '2/6', '3/6', '4/6', '5/6', '6/6', `${k}/${6 - k || 1}`].filter(s => Math.abs(val(s) - val(ans)) > 1e-9);
@@ -1157,9 +1209,9 @@ G('kansen', 'wis', '🎲', 'Kansen', 'Data', {
 G('dagen', 'wis', '📅', 'Dagen en maanden', 'Meten: tijd', {
   L2: ['De dagen van de week (niveau 1) en de maanden van het jaar (niveau 2) in volgorde.', { list: DAYS, w: 'dag' }, { list: MONTHS, w: 'maand' }]
 }, p => {
-  const i = rnd(p.list.length), after = Math.random() < .5, n = p.list.length, ans = p.list[(i + (after ? 1 : -1) + n) % n];
+  const i = rnd(p.list.length), after = Math.random() < .5, n = p.list.length, sk = p.skip || 1, ans = p.list[(i + (after ? sk : -sk) + n) % n];
   const wr = sample(p.list.filter(x => x !== ans && x !== p.list[i]), 2);
-  return { text: `Welke ${p.w} komt ${after ? 'na' : 'vóór'} ${p.list[i]}?`, stage: '', cols: 3, tx: 1, options: txtChoices(ans, wr) };
+  return { text: sk > 1 ? `Welke ${p.w} komt ${N[sk]} ${p.w === 'dag' ? 'dagen' : 'maanden'} ${after ? 'na' : 'vóór'} ${p.list[i]}?` : `Welke ${p.w} komt ${after ? 'na' : 'vóór'} ${p.list[i]}?`, stage: '', cols: 3, tx: 1, options: txtChoices(ans, wr) };
 });
 
 /* vraagstukken */
@@ -1198,6 +1250,10 @@ const VS = {
   ], [
     () => { const s = pick([1000, 5000, 10000]), c = rint(2, 12); return { t: `Op een kaart met schaal 1 op ${s} is een weg ${c} cm lang. Hoe lang is die weg in werkelijkheid, in meter?`, a: c * s / 100, c: [c * s, c * s / 1000, c * s / 10] }; },
     () => { const p = rint(2, 20) * 20, pc = pick([10, 20, 25]); return { t: `Een tablet kost ${p} euro. De prijs stijgt met ${pc} procent. Wat is de nieuwe prijs in euro?`, a: p + p * pc / 100, c: [p + pc, p * pc / 100, p - p * pc / 100] }; }
+  ], [
+    () => { const [n] = pick(KIDS), m = pick([15, 20, 30]), km = rint(2, 6); const per = km * 60 / m; return { t: `${n} fietst ${km} km in ${m} minuten. Hoeveel km fietst ${n} in 1 uur aan dezelfde snelheid?`, a: per, c: [km + 60 - m, r3(km * m / 60), km * 2 + 1] }; },
+    () => { const kg = pick([2, 3, 4]), u = pick([1.5, 2, 2.5]), b = pick([5, 6, 7]); return { t: `${kg} kg appelen kost ${fmt(r3(kg * u))} euro. Hoeveel euro kost ${b} kg?`, a: r3(b * u), c: [r3(kg * u + b), r3(b * u + u), r3(kg * u * b)] }; },
+    () => { const old = rint(3, 15) * 20, pc = pick([20, 25, 50]), nw2 = old * (100 - pc) / 100; return { t: `Na ${pc} procent korting kost een broek nog ${nw2} euro. Wat was de oude prijs?`, a: old, c: [nw2 + nw2 * pc / 100, nw2 + pc, nw2 * 2] }; }
   ]]
 };
 G('vraagstukken', 'wis', '🧩', 'Vraagstukken', 'Probleemoplossen', {
@@ -1360,7 +1416,9 @@ const WS = {
     ['muziekinstrument', 'fluit', ['noot', 'podium']], ['gereedschap', 'tang', ['spijker', 'plank']], ['zoogdier', 'dolfijn', ['haai', 'pinguïn']], ['meubel', 'kast', ['deur', 'raam']]].map(([c, a, b]) => [`Welk woord is een soort ${c}?`, a, b]),
   L6b: [['Geachte mevrouw, graag had ik meer informatie ontvangen.', ['Hoi! Stuur me eens wat info.', 'Yo, heb je meer info voor mij?']],
     ['Kunt u mij zeggen hoe laat het is?', ['Hoe laat is het, man?', 'Hé, weet jij hoe laat het is?']], ['Met vriendelijke groeten,', ['Groetjes!', 'Doei!']],
-    ['Mag ik u iets vragen?', ['Mag ik je effe iets vragen?', 'Zeg, ik moet je iets vragen.']], ['Wij danken u voor uw bestelling.', ['Merci voor je bestelling!', 'Top dat je iets kocht!']]].map(([a, b]) => ['Welke zin is het meest formeel?', a, b, 0, 1])
+    ['Mag ik u iets vragen?', ['Mag ik je effe iets vragen?', 'Zeg, ik moet je iets vragen.']], ['Wij danken u voor uw bestelling.', ['Merci voor je bestelling!', 'Top dat je iets kocht!']]].map(([a, b]) => ['Welke zin is het meest formeel?', a, b, 0, 1]),
+  L6c: [['vergroten', 'uitbreiden', ['verkleinen', 'verbieden']], ['onmiddellijk', 'meteen', ['later', 'soms']], ['ontdekken', 'vinden', ['verliezen', 'verbergen']], ['voorzichtig', 'behoedzaam', ['roekeloos', 'haastig']],
+    ['gevolg', 'resultaat', ['oorzaak', 'begin']], ['nauwkeurig', 'precies', ['slordig', 'snel']], ['zelden', 'bijna nooit', ['vaak', 'altijd']], ['tijdelijk', 'voor even', ['voor altijd', 'te laat']]].map(([w, a, b]) => [`Welk woord of welke woordgroep betekent hetzelfde als ${w}?`, a, b])
 };
 G('woordenschat', 'ned', '📚', 'Woordenschat', 'Woordenschat', {
   L2: ['Tegenstellingen (niveau 1); woorden in categorieën (niveau 2).', { b: 'L2a' }, { b: 'L2b' }],
@@ -1398,7 +1456,9 @@ const SP = {
   L6a: [['station', ['stasion', 'statsjon']], ['actie', ['aksie', 'aktie']], ['cadeau', ['kado', 'cado']], ['politie', ['polietsie', 'polisie']], ['garage', ['garaasje', 'garasje']],
     ['computer', ['kompjoeter', 'computter']], ['chauffeur', ['sjofeur', 'chaufeur']], ['restaurant', ['restorant', 'restaurang']], ['douche', ['doesj', 'douce']], ['vakantie', ['vakansie', 'vacantie']]],
   L6b: [['pannenkoek', ['pannekoek', 'panenkoek']], ['zonnebril', ['zonnenbril', 'zonebril']], ['boekenkast', ['boekekast', 'boekkast']], ['hondenhok', ['hondehok', 'honnenhok']],
-    ['paardenbloem', ['paardebloem', 'paardbloem']], ['kippensoep', ['kippesoep', 'kipensoep']], ['ruggengraat', ['ruggegraat', 'rugengraat']], ['zonneschijn', ['zonnenschijn', 'zoneschijn']]]
+    ['paardenbloem', ['paardebloem', 'paardbloem']], ['kippensoep', ['kippesoep', 'kipensoep']], ['ruggengraat', ['ruggegraat', 'rugengraat']], ['zonneschijn', ['zonnenschijn', 'zoneschijn']]],
+  L6c: [['zeeën', ['zeeen', 'zeëen']], ['ruïne', ['ruine', 'rüine']], ['naïef', ['naief', 'naiëf']], ['zee-egel', ['zeeegel', 'zee egel']], ['oud-leerling', ['oudleerling', 'oud leerling']],
+    ['Noord-Amerika', ['Noord Amerika', 'noord-Amerika']], ['e-mail', ['email', 'e mail']], ['coördinaat', ['coordinaat', 'coörrdinaat']]]
 };
 G('spelling', 'ned', '✍️', 'Spelling', 'Spelling', {
   L2: ['Klankzuivere woorden met ei/ij, au/ou, ui en eu (niveau 1); eindletter d of t, b of p (niveau 2).', { b: 'L2a', k: 'word' }, { b: 'L2b', k: 'word' }],
@@ -1434,7 +1494,10 @@ const WW = {
     ['De taart ___ door oma gebakken. (worden)', 'wordt', ['word', 'wort']], ['Lotte ___ gisteren naar huis. (fietsen)', 'fietste', ['fietsde', 'fietsten']], ['Morgen ___ het mooi weer worden. (zullen)', 'zal', ['zalt', 'zul']]],
   L6b: [['Ik eet een ___ ei. (koken)', 'gekookt', ['gekookte', 'gekookd']], ['De ___ appel smaakt lekker. (bakken)', 'gebakken', ['gebakte', 'gebakkene']], ['Een ___ hond luistert niet. (verwennen)', 'verwende', ['verwendde', 'verwente']],
     ['De ___ brief ligt op tafel. (verscheuren)', 'verscheurde', ['verscheurte', 'verscheurdde']], ['___ snel naar huis! (lopen)', 'Loop', ['Loopt', 'Lopen']], ['___ de deur toe, alsjeblieft! (doen)', 'Doe', ['Doet', 'Doen']],
-    ['Het ___ paard rent weg. (schrikken)', 'geschrokken', ['geschrikte', 'geschrokte']], ['Een ___ vaas. (breken)', 'gebroken', ['gebreekte', 'gebrookte']]]
+    ['Het ___ paard rent weg. (schrikken)', 'geschrokken', ['geschrikte', 'geschrokte']], ['Een ___ vaas. (breken)', 'gebroken', ['gebreekte', 'gebrookte']]],
+  L6c: [['Het ___ veel geld. (kosten)', 'kost', ['kostt', 'kosd']], ['Hij ___ zich gisteren. (vergissen)', 'vergiste', ['vergisde', 'vergistte']], ['___ jij je huiswerk al? (maken)', 'Maak', ['Maakt', 'Maakd']],
+    ['De vergeten tas ___ gisteren teruggevonden. (worden)', 'werd', ['werdt', 'wierd']], ['Zij ___ de bal gisteren. (vangen)', 'ving', ['vangde', 'vong']], ['Het ___ me niets uit. (maken)', 'maakt', ['maak', 'maakd']],
+    ['Wat ___ jij morgen doen? (zullen)', 'zul', ['zult', 'zuld']], ['Gisteren ___ wij de hele dag. (dansen)', 'dansten', ['dansden', 'danste']]]
 };
 G('werkwoorden', 'ned', '🖊️', 'Werkwoorden', 'Spelling', {
   L4: ['Werkwoorden in de tegenwoordige tijd (niveau 1); sterke werkwoorden in de verleden tijd (niveau 2).', { b: 'L4a' }, { b: 'L4b' }, '1.2.6, 1.2.7'],
@@ -1454,7 +1517,7 @@ const ZD = [
   [['Na school', 'bwb'], ['eet', 'pv'], ['ik', 'ow'], ['een appel', 'lv']], [['Lotte', 'ow'], ['vertelt', 'pv'], ['haar vriendin', 'mv'], ['een geheim', 'lv']],
   [['Zondag', 'bwb'], ['zijn', 'pv'], ['wij', 'ow'], ['naar de film', 'bwb'], ['geweest', 'wg']], [['Papa', 'ow'], ['heeft', 'pv'], ['de auto', 'lv'], ['gewassen', 'wg']]
 ];
-const ZDN = { pv: 'de persoonsvorm', ow: 'het onderwerp', lv: 'het lijdend voorwerp', mv: 'het meewerkend voorwerp', wg: 'het andere deel van het werkwoordelijk gezegde' };
+const ZDN = { bwb: 'de bijwoordelijke bepaling', pv: 'de persoonsvorm', ow: 'het onderwerp', lv: 'het lijdend voorwerp', mv: 'het meewerkend voorwerp', wg: 'het andere deel van het werkwoordelijk gezegde' };
 G('zinsdelen', 'ned', '🔍', 'Zinsontleding', 'Taalbeschouwing', {
   L4: ['De persoonsvorm (niveau 1) en het onderwerp (niveau 2) vinden.', { roles: ['pv'] }, { roles: ['ow'] }, '1.4.10'],
   L5: ['Persoonsvorm, onderwerp en werkwoordelijk gezegde (niveau 1); lijdend voorwerp (niveau 2).', { roles: ['pv', 'ow', 'wg'] }, { roles: ['lv'] }],
@@ -1478,7 +1541,7 @@ G('woordsoorten', 'ned', '🏷️', 'Woordsoorten', 'Taalbeschouwing', {
   L5: ['Alle woordsoorten uit de vorige jaren door elkaar.', { cats: ['zn', 'ww', 'bn', 'lw', 'tw', 'vz', 'vw'] }, { cats: ['zn', 'ww', 'bn', 'lw', 'tw', 'vz', 'vw'] }],
   L6: ['Voornaamwoorden: persoonlijk en bezittelijk.', { cats: ['pvnw', 'bvnw', 'zn', 'lw'] }, { cats: ['pvnw', 'bvnw', 'zn', 'vz', 'vw'] }, '1.4.6']
 }, p => {
-  const tc = pick(p.cats.slice(0, p.cats.includes('pvnw') ? 2 : p.cats.length)), t = pick(WSO[tc]);
+  const tc = pick(p.cats.slice(0, p.cats.includes('pvnw') && !p.any ? 2 : p.cats.length)), t = pick(WSO[tc]);
   const others = sample(p.cats.filter(c => c !== tc), Math.min(3, p.cats.length - 1)).map(c => pick(WSO[c]));
   return { text: `Welk woord is ${WSON[tc]}?`, stage: '', cols: others.length + 1 === 3 ? 3 : 2, tx: 1, options: txtChoices(t, others) };
 });
@@ -1491,8 +1554,8 @@ G('leestekens', 'ned', '❓', 'Leestekens', 'Taalbeschouwing', {
   L3: ['Punt, vraagteken en uitroepteken (niveau 1), ook de komma (niveau 2).', { b: 'a', opts: ['.', '?', '!'] }, { b: 'b', opts: ['.', '?', '!', ','], only: ['.', '?', '!', ','] }],
   L4: ['Interpunctie: punt, vraagteken, uitroepteken, komma en dubbele punt.', { b: 'b', opts: ['.', '?', '!', ',', ':'] }, { b: 'b', opts: ['.', '?', '!', ',', ':'] }, '1.4.8']
 }, p => {
-  const pool = LT[p.b].filter(x => !p.only || p.only.includes(x[1])), [z, a] = pick(pool), w = sample(p.opts.filter(x => x !== a), 2);
-  return { text: 'Welk leesteken hoort in het vakje?', stage: `<div class="sentence">${z.replace('⬚', '<span class="box">&nbsp;</span>')}</div>`, cols: 3, options: txtChoices(a, w, v => `<span class="num">${v}</span>`) };
+  const pool = LT[p.b].filter(x => !p.only || p.only.includes(x[1])), [z, a] = pick(pool), w = sample(p.opts.filter(x => x !== a), p.k || 2);
+  return { text: 'Welk leesteken hoort in het vakje?', stage: `<div class="sentence">${z.replace('⬚', '<span class="box">&nbsp;</span>')}</div>`, cols: w.length === 3 ? 4 : 3, options: txtChoices(a, w, v => `<span class="num">${v}</span>`) };
 });
 
 /* begrijpend lezen */
@@ -1526,7 +1589,13 @@ const BL = {
     ['Inhoud\n1  Dieren in het bos ........ blz. 4\n2  Dieren op de boerderij ... blz. 12\n3  Dieren in de zee ......... blz. 20',
       ['Op welke bladzijde begint het hoofdstuk over dieren in de zee?', 'bladzijde 20', ['bladzijde 12', 'bladzijde 3']], ['Waar zoek je informatie over koeien?', 'vanaf bladzijde 12', ['vanaf bladzijde 4', 'vanaf bladzijde 20']]],
     ['Na de wedstrijd had Kobe modder tot aan zijn knieën. Toch straalde hij: zijn ploeg had met 3-2 gewonnen en hij had het winnende doelpunt gemaakt.',
-      ['Welke sport speelde Kobe waarschijnlijk?', 'voetbal', ['zwemmen', 'schaken']], ['Hoe voelde Kobe zich na de wedstrijd?', 'trots en blij', ['boos', 'verdrietig']]]]
+      ['Welke sport speelde Kobe waarschijnlijk?', 'voetbal', ['zwemmen', 'schaken']], ['Hoe voelde Kobe zich na de wedstrijd?', 'trots en blij', ['boos', 'verdrietig']]]],
+  X: [['Elk jaar vliegen duizenden zwaluwen in de herfst naar Afrika. Daar is het warmer en vinden ze meer insecten. In de lente komen ze terug naar België om te broeden. Zwaluwen zijn de mooiste vogels die er bestaan.',
+      ['Waarom vliegen zwaluwen naar Afrika?', 'Daar is het warmer en vinden ze meer voedsel.', ['Ze zoeken een nieuw nest.', 'In België mogen ze niet broeden.']], ['Welke zin uit de tekst is een mening?', 'Zwaluwen zijn de mooiste vogels die er bestaan.', ['Zwaluwen eten insecten.', 'Zwaluwen broeden in België.']]],
+    ['De gemeente vernieuwt de speeltuin in het park. Er komen nieuwe schommels en een klimrek. De werken duren van maart tot juni. Tijdens de werken is de speeltuin gesloten.',
+      ['Wanneer kan je niet in de speeltuin spelen?', 'van maart tot juni', ['het hele jaar', 'alleen in juli']], ['Wat is het doel van deze tekst?', 'informeren', ['overtuigen', 'amuseren']]],
+    ['Koop nu de nieuwe Turbo-step! Hij is de snelste step van het land en kost maar 49 euro. Alleen deze week in de winkel!',
+      ['Wat wil de schrijver dat je doet?', 'de step kopen', ['een step huren', 'een step tekenen']], ['Welke soort tekst is dit?', 'een reclametekst', ['een gedicht', 'een verslag']]]]
 };
 G('begrijpendlezen', 'ned', '🧐', 'Begrijpend lezen', 'Lezen', {
   L2: ['Korte zinnen lezen en een vraag beantwoorden met een prent.', { b: 'L2' }, { b: 'L2' }],
@@ -1674,18 +1743,20 @@ for (const lang of ['fr', 'en', 'de']) {
     const others = p.same && pool.filter(r => r[4] === t[4] && r !== t).length >= p.n - 1 ? sample(pool.filter(r => r[4] === t[4] && r !== t), p.n - 1) : sample(pool.filter(r => r !== t), p.n - 1);
     const o = shuffle([t, ...others]), v = hasVoice(lang);
     return { text: v ? 'Luister. Welke prent past bij het woord?' : `Welke prent past bij: ${word(t)}?`, say: [['Luister. Welke prent past bij het woord?'], [word(t), lang]],
-      stage: v ? `<div class="bigemo" data-sayl="${lang}" data-say="${word(t)}">🔊</div>` : `<div class="word">${word(t)}</div>`,
-      cols: o.length === 4 ? 4 : 3, options: o.map(r => ({ html: emoOpt(r[0]), correct: r === t })), right: `Ja!` };
+      stage: v ? `<div class="bigemo" data-sayl="${lang}" data-say="${word(t)}">🔊</div>` : `<div class="word" data-sayl="${lang}" data-say="${word(t)}">${word(t)}</div>`,
+      cols: o.length === 4 ? 4 : 3, options: o.map(r => ({ html: emoOpt(r[0]), correct: r === t })), right: [[word(t), lang]] };
   });
 
   LG(lang, 'lezen', '📖', 'Lezen: woordjes', 'Lezen', {
-    L4: [`${TE} woorden lezen en de juiste prent kiezen.`, { n: 3 }, { n: 4 }, ref('10.2.1')],
+    L4: [`${TE} woorden lezen en de juiste prent kiezen; het woord wordt ook voorgelezen.`, { n: 3 }, { n: 4 }, ref('10.2.1')],
     L5: [`${TE} woorden lezen, kiezen binnen hetzelfde thema.`, { n: 4, same: true }, { n: 4, same: true }, ref('10.2.1')],
     L6: [`Woordenschat ${T} lezen binnen hetzelfde thema.`, { n: 4, same: true }, { n: 4, same: true }, ref('10.2.1')]
   }, (p, L, g, lang) => {
     const t = pick(VOC_L), same = VOC_L.filter(r => r[4] === t[4] && r !== t);
     const o = shuffle([t, ...(p.same && same.length >= p.n - 1 ? sample(same, p.n - 1) : sample(VOC_L.filter(r => r !== t), p.n - 1))]);
-    return { text: 'Lees het woord. Welke prent past erbij?', stage: `<div class="word">${word(t)}</div>`, cols: o.length === 4 ? 4 : 3, options: o.map(r => ({ html: emoOpt(r[0]), correct: r === t })) };
+    const instr = p.silent ? 'Lees het woord zelf. Welke prent past erbij?' : 'Lees en luister. Welke prent past bij het woord?';
+    return { text: instr, say: p.silent ? instr : [[instr], [word(t), lang]], stage: `<div class="word" data-sayl="${lang}" data-say="${word(t)}">${word(t)}</div>`,
+      cols: o.length === 4 ? 4 : 3, options: o.map(r => ({ html: emoOpt(r[0]), correct: r === t })), right: [[word(t), lang]] };
   });
 
   LG(lang, 'kleurvorm', '🎨', 'Luisteren: kleuren en vormen', 'Luisteren', {
@@ -1699,11 +1770,11 @@ for (const lang of ['fr', 'en', 'de']) {
     add({ c: t.c, s: pick(base.filter(s => s !== t.s)), big: useSize ? Math.random() < .5 : true });
     add({ c: pick(cols5.filter(c => c !== t.c)), s: t.s, big: useSize ? Math.random() < .5 : true });
     if (useSize) add({ c: t.c, s: t.s, big: !t.big });
-    let guard = 0; while (items.length < p.n && guard++ < 200) add({ c: pick(cols5), s: pick(base), big: useSize ? Math.random() < .5 : true });
+    let guard = 0; while (items.length < p.n && guard++ < 300) add({ c: pick(cols5), s: pick(base), big: useSize ? Math.random() < .5 : true });
     const phrase = CSL[lang].phrase(t.c.n, t.s.n, useSize ? (t.big ? 'big' : 'small') : null), v = hasVoice(lang);
     return { text: v ? 'Luister en tik op de juiste figuur.' : `Tik op: ${phrase}`, say: [['Luister en tik op de juiste figuur.'], [phrase, lang]],
-      stage: v ? `<div class="bigemo" style="font-size:60px" data-sayl="${lang}" data-say="${phrase}">🔊</div>` : '', cols: p.n === 6 ? 6 : 4,
-      options: shuffle(items).map(o => ({ html: shapeSVG(o), correct: o === t })) };
+      stage: `<div class="bigemo" style="font-size:60px" data-sayl="${lang}" data-say="${phrase}">🔊</div>`, cols: p.n === 6 ? 6 : 4,
+      options: shuffle(items).map(o => ({ html: shapeSVG(o), correct: o === t })), right: [[phrase, lang]] };
   });
 
   LG(lang, 'getallen', '🔢', 'Getallen', 'Luisteren', {
@@ -1714,10 +1785,10 @@ for (const lang of ['fr', 'en', 'de']) {
   }, (p, L, g, lang) => {
     const n = rint(p.min || 1, p.max), v = hasVoice(lang), w = NUMW[lang](n), step = p.max > 100 ? 100 : 10;
     const sw = n < 100 ? (n % 10) * 10 + Math.floor(n / 10) : Math.floor(n / 100) + (n % 10) * 100 + (Math.floor(n / 10) % 10) * 10;
-    const c = shuffle([n + 1, n - 1, n + step, n - step, sw, n + 10, n - 10, n + 2].filter(x => x >= 0 && x <= Math.max(p.max, 20) && x !== n));
+    const c = shuffle([n + 1, n - 1, n + step, n - step, sw, n + 10, n - 10, n + 2, n + 20].filter(x => x >= 0 && x <= Math.max(p.max, 20) && x !== n));
     return { text: v ? 'Welk getal hoor je?' : `Welk getal is: ${w}?`, say: [['Welk getal hoor je?'], [w, lang]],
-      stage: v ? `<div class="bigemo" data-sayl="${lang}" data-say="${w}">🔊</div>` : `<div class="word" style="font-size:clamp(26px,6vw,54px)">${w}</div>`,
-      cols: 3, options: mkOpts(n, c, 2) };
+      stage: v ? `<div class="bigemo" data-sayl="${lang}" data-say="${w}">🔊</div>` : `<div class="word" style="font-size:clamp(26px,6vw,54px)" data-sayl="${lang}" data-say="${w}">${w}</div>`,
+      cols: p.k === 3 ? 2 : 3, options: mkOpts(n, c, p.k || 2), right: [[w, lang]] };
   });
 
   LG(lang, 'vragen', '💬', 'Vragen en antwoorden', 'Mondeling interageren', {
@@ -1725,26 +1796,88 @@ for (const lang of ['fr', 'en', 'de']) {
     L5: [`Vragen met vraagwoorden begrijpen en beantwoorden.`, {}, {}, ref('10.4.1–10.4.2')],
     L6: [`Ja/nee-vragen en vraagwoordvragen beantwoorden in een gesprekje.`, {}, {}, ref('10.4.1–10.4.2')]
   }, (p, L, g, lang) => {
-    const [q, a, w] = pick(QA[lang]);
-    return { text: 'Kies het beste antwoord op de vraag.', say: [['Kies het beste antwoord op de vraag.'], [q, lang]], stage: `<div class="sentence" lang="${lang}">${q}</div>`, cols: 1, tx: 1, options: txtChoices(a, w) };
+    const [q, a, w] = pick(QA[lang]), listen = p.listen && hasVoice(lang);
+    const instr = listen ? 'Luister naar de vraag en kies het beste antwoord.' : 'Kies het beste antwoord op de vraag.';
+    return { text: instr, say: [[instr], [q, lang]], stage: listen ? `<div class="bigemo" data-sayl="${lang}" data-say="${q}">🔊</div>` : `<div class="sentence" lang="${lang}" data-sayl="${lang}" data-say="${q}">${q}</div>`,
+      cols: 1, tx: 1, options: txtChoices(a, w), right: [[a, lang]] };
   });
 
   LG(lang, 'vertalen', '🔄', 'Vertalen', 'Lezen en spreken', {
     L5: [`Een ${TE} zin begrijpen en naar het Nederlands vertalen (niveau 1); een Nederlandse zin in het ${T} kiezen (niveau 2).`, { dir: 'nl' }, { dir: 'vt' }, ref('10.1.6, 10.2.6, 10.3.7')],
     L6: [`Zinnen vertalen in beide richtingen.`, { dir: 'mix' }, { dir: 'vt' }, ref('10.1.6, 10.3.7')]
   }, (p, L, g, lang) => {
-    const dir = p.dir === 'mix' ? pick(['nl', 'vt']) : p.dir, t = pick(TR), w = sample(TR.filter(x => x !== t), 2), i = VL[lang];
-    if (dir === 'nl') return { text: 'Wat betekent deze zin in het Nederlands?', say: [['Wat betekent deze zin in het Nederlands?'], [t[i], lang]], stage: `<div class="sentence">${t[i]}</div>`, cols: 1, tx: 1, options: txtChoices(t[0], w.map(x => x[0])) };
-    return { text: `Hoe zeg je dit in het ${T}?`, say: `Hoe zeg je dit in het ${T}? ${t[0]}`, stage: `<div class="sentence">${t[0]}</div>`, cols: 1, tx: 1, options: txtChoices(t[i], w.map(x => x[i])) };
+    const dir = p.dir === 'mix' ? pick(['nl', 'vt']) : p.dir, t = pick(TR), w = sample(TR.filter(x => x !== t), p.k || 2), i = VL[lang];
+    if (dir === 'nl') return { text: 'Wat betekent deze zin in het Nederlands?', say: [['Wat betekent deze zin in het Nederlands?'], [t[i], lang]], stage: `<div class="sentence" data-sayl="${lang}" data-say="${t[i]}">${t[i]}</div>`, cols: 1, tx: 1, options: txtChoices(t[0], w.map(x => x[0])), right: [[t[i], lang]] };
+    return { text: `Hoe zeg je dit in het ${T}?`, say: `Hoe zeg je dit in het ${T}? ${t[0]}`, stage: `<div class="sentence">${t[0]}</div>`, cols: 1, tx: 1, options: txtChoices(t[i], w.map(x => x[i])), right: [[t[i], lang]] };
   });
 
   LG(lang, 'werkwoorden', '✍️', 'Werkwoorden', 'Schrijven', {
     L5: [fr ? 'Werkwoordsuitgangen in de indicatif présent, ook être en avoir.' : `Werkwoorden in de tegenwoordige tijd in het ${T}.`, { i: 0 }, { i: 0 }, ref('10.5.1')],
     L6: [fr ? 'Indicatif présent (niveau 1); passé composé en futur proche (niveau 2).' : `Tegenwoordige tijd (niveau 1) en verleden tijd (niveau 2) in het ${T}.`, { i: 0 }, { i: 1 }, ref('10.3.6, 10.5.1')]
   }, (p, L, g, lang) => {
-    const [z, a, w] = pick(WWL[lang][p.i]), m = z.match(/\(([^)]+)\)$/), base = z.replace(/\s*\([^)]+\)$/, '');
-    return { text: m ? `Welke vorm past op de open plaats? Het werkwoord is ${m[1]}.` : 'Welke vorm past op de open plaats?', stage: `<div class="sentence">${base.replace('___', BOX)}</div>`, cols: 3, tx: 1, options: txtChoices(a, w) };
+    const pool = p.i === 2 ? WWL[lang][0].concat(WWL[lang][1]) : WWL[lang][p.i];
+    const [z, a, w] = pick(pool), m = z.match(/\(([^)]+)\)$/), base = z.replace(/\s*\([^)]+\)$/, '');
+    const instr = m ? `Welke vorm past op de open plaats? Het werkwoord is ${m[1]}.` : 'Welke vorm past op de open plaats?';
+    return { text: instr, say: [[instr], [base.replace('___', '...'), lang]], stage: `<div class="sentence">${base.replace('___', BOX)}</div>`, cols: 3, tx: 1,
+      options: txtChoices(a, w), right: [[base.replace('___', a), lang]] };
   });
+}
+/* =====================================================================
+   Niveau 3 – uitdaging
+   Voor de hoogste klas van elk spel staat hier een eigen uitdaging.
+   In lagere klassen gebruikt niveau 3 automatisch de opdrachten van de volgende klas (opstap).
+   N3[spel][klas] = [params, omschrijving]
+   ===================================================================== */
+const N3 = {
+  tellen: { K3: [{ max: 12 }, 'Tellen tot 12.'] },
+  getalbeelden: { K3: [{ max: 10, noDigit: true, k: 3 }, 'Een gehoord getal tot 10 (zonder cijfer) koppelen aan het getalbeeld, kiezen uit vier.'] },
+  meerminder: { K3: [{ max: 12, minD: 1, ask: ['meer', 'minder'] }, 'Hoeveelheden tot 12 vergelijken, ook met een verschil van één.'] },
+  erbij: { K3: [{ max: 10, k: 5, ops: ['+', '-'] }, 'Erbij en eraf tot 10, met maximaal vijf.'] },
+  vergelijken: { K3: [{ kinds: ['groot', 'klein', 'lang', 'kort', 'vol', 'leeg'], n: 4 }, 'Vergelijken met vier voorwerpen in plaats van drie.'] },
+  woordjes: { K3: [{ n: 6, same: true }, 'Kiezen uit zes prenten van hetzelfde thema.'] },
+  luisteren: { K3: [{ feat: 'csz', n: 8 }, 'Opdrachten met kleur, vorm en grootte, kiezen uit acht figuren.'] },
+  beginklank: { K3: [{ n: 5 }, 'Beginklank herkennen, kiezen uit vijf.'] },
+  waar: { K3: [{ set: ['op', 'onder', 'naast', 'boven', 'voor'] }, 'Alle vijf ruimtelijke begrippen door elkaar.'] },
+  patronen: { L1: [{ units: ['AABBC', 'ABCBA', 'ABACA'] }, 'Lange patronen met vijf elementen.'] },
+  rijmen: { L1: [{ n: 5 }, 'Rijm herkennen, kiezen uit vijf.'] },
+  letters: { L1: [{ pos: 'eind', n: 6 }, 'De laatste letter kiezen uit zes letters.'] },
+  nietbij: { L1: [{ n: 6 }, 'Wat hoort er niet bij, kiezen uit zes.'] },
+  vormen: { L1: [{ set: ['cirkel', 'vierkant', 'driehoek', 'rechthoek', 'vijfhoek', 'zeshoek', 'ster', 'hart'] }, 'Alle vlakke figuren door elkaar.'] },
+  lezen: { L2: [{ list: 'L2b', n: 6 }, 'Lange woorden lezen, kiezen uit zes prenten.'] },
+  splitsen: { L2: [{ tens: true }, 'Tientallen splitsen tot 100.'] },
+  dagen: { L2: [{ list: MONTHS, w: 'maand', skip: 2 }, 'Twee maanden verder of terug tellen.'] },
+  tafels: { L4: [{ t: [11, 12, 15, 20, 25], ops: ['×', ':', '?'] }, 'Tafels van 11, 12, 15, 20 en 25, ook met een ontbrekende factor.'] },
+  klok: { L4: [{ mode: 'between' }, 'Tijdsduur tussen twee tijdstippen berekenen.'] },
+  geld: { L4: [{ mode: 'change', two: true }, 'Twee dingen kopen en het wisselgeld berekenen.'] },
+  symmetrie: { L4: [{ figs: ['tri', 'heart', 'house', 'arrow', 'rect', 'kite'] }, 'Symmetrie-assen in alle figuren.'] },
+  leestekens: { L4: [{ b: 'b', opts: ['.', '?', '!', ',', ':'], k: 3 }, 'Leestekens kiezen uit vier mogelijkheden.'] },
+  getallenrij: { L6: [{ lo: -50, hi: 50, steps: [0.5, 1.5, 2.5, 7] }, 'Reeksen met negatieve getallen en kommagetallen.'] },
+  sommen: { L6: [{ g: 'decmul' }, 'Vermenigvuldigen en delen met kommagetallen (bv. 2,4 × 0,5 en 3 : 0,25).'] },
+  plaatswaarde: { L6: [{ dec: 3, ip: 999999, k: 3 }, 'Grote kommagetallen tot op 1 duizendste.'] },
+  getallenas: { L6: [{ rand: 0.01, w: 0.01, n: 10 }, 'Duizendsten op de getallenas.'] },
+  breuken: { L6: [{ mode: 'addun' }, 'Ongelijknamige breuken optellen en vereenvoudigen.'] },
+  procenten: { L6: [{ mode: 'pct' }, 'Een deel van een geheel omzetten naar procent.'] },
+  meten: { L6: [{ mode: 'speed', hard: true }, 'Reistijd berekenen uit afstand en snelheid.'] },
+  oppervlakte: { L6: [{ mode: 'circlearea' }, 'Oppervlakte van een cirkel berekenen.'] },
+  hoeken: { L6: [{ mode: 'iso' }, 'Basishoeken van een gelijkbenige driehoek berekenen.'] },
+  diagrammen: { L6: [{ mode: 'meanbar' }, 'Het gemiddelde aflezen uit een staafdiagram.'] },
+  kansen: { L6: [{ mode: 'dice2' }, 'Kansen met twee dobbelstenen.'] },
+  vraagstukken: { L6: [{ v: 'L6', i: 2 }, 'Samengestelde vraagstukken: snelheid, eenheidsprijs en terugrekenen na korting.'] },
+  woordenschat: { L6: [{ b: 'L6c' }, 'Moeilijkere synoniemen en omschrijvingen.'] },
+  spelling: { L6: [{ b: 'L6c', k: 'hoe' }, 'Trema, koppelteken en hoofdletters in samenstellingen.'] },
+  werkwoorden: { L6: [{ b: 'L6c' }, 'Gemengde werkwoordvormen met d/t-valkuilen.'] },
+  zinsdelen: { L6: [{ roles: ['pv', 'ow', 'lv', 'mv', 'wg', 'bwb'] }, 'Alle zinsdelen, ook de bijwoordelijke bepaling.'] },
+  woordsoorten: { L6: [{ cats: ['pvnw', 'bvnw', 'zn', 'ww', 'bn', 'lw', 'tw', 'vz', 'vw'], any: true }, 'Alle woordsoorten door elkaar, ook voornaamwoorden.'] },
+  begrijpendlezen: { L6: [{ b: 'X', q: [0, 1] }, 'Feit of mening, tekstdoel en tekstsoort herkennen.'] }
+};
+for (const l of ['fr', 'en', 'de']) {
+  N3[l + '_woordjes'] = { L5: [{ n: 6, same: true }, 'Kiezen uit zes prenten van hetzelfde thema.'] };
+  N3[l + '_lezen'] = { L6: [{ n: 6, same: true, silent: true }, 'Zelf lezen zonder voorlezen, kiezen uit zes prenten.'] };
+  N3[l + '_kleurvorm'] = { L4: [{ feat: 'csz', n: 8 }, 'Kleur, vorm en grootte, kiezen uit acht figuren.'] };
+  N3[l + '_getallen'] = { L6: [{ max: 1000, min: 100, k: 3 }, 'Getallen tot 1000, kiezen uit vier dicht bij elkaar liggende getallen.'] };
+  N3[l + '_vragen'] = { L6: [{ listen: true }, 'De vraag alleen horen, niet lezen.'] };
+  N3[l + '_vertalen'] = { L6: [{ dir: 'vt', k: 3 }, 'Nederlandse zin vertalen, kiezen uit vier.'] };
+  N3[l + '_werkwoorden'] = { L6: [{ i: 2 }, 'Alle tijden door elkaar.'] };
 }
 /* =====================================================================
    Motor en schermen
@@ -1779,7 +1912,7 @@ function renderHome() {
 function renderMenu() {
   const g = GR(settings.grade), L = levelOf(g.id);
   $('#menuTitle').textContent = g.ico + ' ' + g.name;
-  $('#lvSwitch').innerHTML = [1, 2].map(n => `<button class="lvbtn ${n === L ? 'on' : ''}" data-level="${n}" aria-label="Niveau ${n}">${n === 1 ? '⭐' : '⭐⭐'}</button>`).join('');
+  $('#lvSwitch').innerHTML = [1, 2, 3].map(n => `<button class="lvbtn ${n === L ? 'on' : ''}" data-level="${n}" aria-label="Niveau ${n}" title="${['', 'Begin schooljaar', 'Einde schooljaar', 'Uitdaging'][n]}">${'⭐'.repeat(n)}</button>`).join('');
   $('#groups').innerHTML = AREAS.map(a => {
     const list = gamesFor(g.id).filter(x => x.area === a.id); if (!list.length) return '';
     return `<div class="group g-${a.id}"><h2>${a.ico} ${(g.k && AREAS_K[a.id]) || a.title}</h2><div class="tiles">` +
@@ -1793,9 +1926,24 @@ function startGame(id) {
   cur = { game: GAMES.find(x => x.id === id), g, L: levelOf(g.id), idx: 0, score: 0, results: [], seen: new Set() };
   show('play'); nextQ();
 }
+/* niveau 3: eigen uitdaging (N3) of opstap naar de volgende klas waarin het spel bestaat */
+function nextGradeOf(game, gid) { const i = GRADES.findIndex(x => x.id === gid); return GRADES.slice(i + 1).find(x => game.grades[x.id]) || null; }
+function paramsFor(game, gid, L) {
+  const cfg = game.grades[gid];
+  if (L < 3) return cfg[L];
+  if (N3[game.id] && N3[game.id][gid]) return N3[game.id][gid][0];
+  const nx = nextGradeOf(game, gid);
+  if (nx) { const c = game.grades[nx.id]; return JSON.stringify(c[1]) !== JSON.stringify(cfg[2]) ? c[1] : c[2]; }
+  return cfg[2];
+}
+function n3Text(game, gid) {
+  if (N3[game.id] && N3[game.id][gid]) return N3[game.id][gid][1];
+  const nx = nextGradeOf(game, gid);
+  if (nx) { const c = game.grades[nx.id], lv = JSON.stringify(c[1]) !== JSON.stringify(game.grades[gid][2]) ? 1 : 2; return `opstap: de opdrachten van niveau ${lv} in het ${nx.name}.`; }
+  return 'zoals niveau 2.';
+}
 function makeQ(game, g, L) {
-  const cfg = game.grades[g.id];
-  return game.make(cfg[L], L, g);
+  return game.make(paramsFor(game, g.id, L), L, g);
 }
 function nextQ() {
   if (cur.idx >= ROUNDS) return finish();
@@ -1825,7 +1973,7 @@ function answer(i, btn) {
   if (o.correct) {
     cur.locked = true; btn.classList.add('right'); sfx('good');
     cur.results[cur.idx] = cur.first ? 2 : 1; if (cur.first) cur.score++;
-    say(pick(PRAISE) + ' ' + (cur.q.right || ''));
+    if (Array.isArray(cur.q.right)) say([[pick(PRAISE)], ...cur.q.right]); else say(pick(PRAISE) + ' ' + (cur.q.right || ''));
     setTimeout(() => { if (!cur || !document.getElementById('play').classList.contains('on')) return; cur.idx++; nextQ(); }, 1900);
   } else {
     cur.first = false; btn.classList.add('wrong'); sfx('bad');
@@ -1863,7 +2011,7 @@ function renderGoals() {
   $('#goalTable').innerHTML = `<caption class="small" style="text-align:left;padding:6px 0">${IJKG[gid] ? 'Dit is een ijkpunt: de doelen gelden voor het ' + IJK(gid) + '.' : 'Opstap naar de doelen voor het ' + IJK(gid) + '.'}</caption>` + head +
     gamesFor(gid).map(x => { const c = x.grades[gid];
       const doel = x.lang === 'fr' ? `Frans (einde lager onderwijs) · ${c[3]}` : x.lang ? 'vrij aanbod, geen minimumdoelen' : c[3] ? (IJKG[gid] ? '' : 'opstap · ') + c[3] : 'opstap naar ' + IJK(gid);
-      return `<tr><td>${x.lang ? LANGS[x.lang].ico + ' ' : ''}${x.ico} ${x.name}</td><td><span class="tag ${x.area}">${x.tag}</span></td><td>${c[0]}</td><td class="small">${doel}</td></tr>`; }).join('');
+      return `<tr><td>${x.lang ? LANGS[x.lang].ico + ' ' : ''}${x.ico} ${x.name}</td><td><span class="tag ${x.area}">${x.tag}</span></td><td>${c[0]}<br><span class="small">⭐⭐⭐ Niveau 3: ${n3Text(x, gid)}</span></td><td class="small">${doel}</td></tr>`; }).join('');
 }
 const VOICE_HELP = 'Voor Frans kiest het spel bij voorkeur een stem uit Frankrijk (fr-FR); getallen worden altijd in het Frans van Frankrijk uitgesproken (soixante-dix, quatre-vingt-dix). iPad/iPhone: Instellingen › Toegankelijkheid › Gesproken materiaal › Stemmen. Android: Instellingen › Toegankelijkheid › Tekst-naar-spraak › taal of stemgegevens installeren. Windows: Instellingen › Tijd en taal › Spraak › Stemmen toevoegen.';
 function renderLangs() {
@@ -1905,7 +2053,7 @@ $('#resetStars').onclick = () => { if (confirm('Alle sterren op dit toestel wiss
 
 renderHome();
 if (settings.grade && GR(settings.grade)) { renderMenu(); show('menu'); }
-window.__uil = { GAMES, GRADES, makeQ };
+window.__uil = { GAMES, GRADES, makeQ, paramsFor, n3Text };
 </script>
 <script>
 // Offline-ondersteuning als web-app (niet nodig in de Android/iPhone-app zelf).

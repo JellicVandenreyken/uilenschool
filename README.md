@@ -3,7 +3,7 @@
 Educatieve game voor de **kleuterschool (1ste–3de kleuterklas)** en de **lagere school (1ste–6de leerjaar)**, afgestemd op de Vlaamse minimumdoelen basisonderwijs. Zie **[DOELEN.md](DOELEN.md)** voor het overzicht per klas met de decreetcodes.
 
 - 9 klassen met Rekenen, Meten en meetkunde en Taal, plus Frans, Engels en Duits vanaf het 3de leerjaar.
-- Elk spel: 5 vragen, alles wordt **voorgelezen**, 1–3 sterren, twee niveaus (⭐ begin / ⭐⭐ einde schooljaar).
+- Elk spel: 5 vragen, alles wordt **voorgelezen**, 1–3 sterren, drie niveaus (⭐ begin / ⭐⭐ einde schooljaar / ⭐⭐⭐ uitdaging).
 - Volledig **offline**: één HTML-bestand, geen externe bibliotheken, geen tracking.
 
 Eén spel, vier manieren om het te gebruiken. Ze delen allemaal dezelfde map `www/`.
