@@ -1,6 +1,6 @@
 // Service worker: bewaart het spel op het toestel zodat het offline werkt.
 // Verhoog VERSION bij elke wijziging zodat toestellen de nieuwe versie ophalen.
-const VERSION = 'uilenschool-v1';
+const VERSION = 'uilenschool-v2';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg',
   './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
