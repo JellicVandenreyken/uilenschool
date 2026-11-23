@@ -4,6 +4,10 @@ Gebaseerd op de nieuwe Vlaamse minimumdoelen basisonderwijs (ontwerpdecreet; Ned
 
 **Vreemde talen (vanaf 3de leerjaar):** Frans is verplicht in het 5de en 6de leerjaar en mag vanaf het 3de; de Franse spelletjes volgen de minimumdoelen Frans voor het einde van het lager onderwijs (hoofdstuk 10 van het ontwerpdecreet). Engels en Duits mogen vanaf het 3de leerjaar aangeboden worden maar hebben geen minimumdoelen. Elke taal is aan of uit te zetten in *Voor juf, meester en ouders*. Het gevraagde woord, getal of de zin wordt altijd ook in de vreemde taal uitgesproken, en na een juist antwoord nog eens herhaald. Toont het toestel een stemmenlijst zonder die taal, dan verschijnt het woord ook op het scherm. Frans wordt uitgesproken als Frans van Frankrijk (voorkeur voor een fr-FR-stem; getallen als soixante-dix en quatre-vingt-dix).
 
+**Afwisselende spelvormen:** bij elke nieuwe reeks krijgt een spel een andere vorm, waar die past: 👆 kiezen, 🎈 ballonnen (kleuters en 1ste leerjaar), ✅ juist of fout, ⌨️ zelf het getal intypen (vanaf het 1ste leerjaar, bij antwoorden die een getal zijn) en ✋ zelf het juiste aantal aantikken (tellen bij kleuters). Uit te zetten in *Voor juf, meester en ouders*.
+
+**Oefentesten 3de kleuterklas (optioneel):** *Luisteren (KOALA-stijl)* oefent wat de KOALA-taalscreening bekijkt (instructies, mededelingen, vragen en verhaaltjes begrijpen; doe-, zoek- en kiesopdrachten). *Klaar voor het 1ste leerjaar (TOETER-stijl)* oefent taal- en rekenvoorwaarden (klanken onderscheiden, auditief geheugen, seriëren, classificeren, visuele discriminatie, hoeveelheden/conservatie). Het zijn geen officiële testitems, er wordt geen score of advies gegeven, en beide zijn aan/uit te zetten.
+
 ### 🐣 1ste kleuterklas (7 spelletjes)
 
 Opstap naar de doelen voor het einde kleuteronderwijs.
@@ -36,7 +40,7 @@ Opstap naar de doelen voor het einde kleuteronderwijs.
 | 👂 Goed luisteren | Taal | Een opdracht met twee kenmerken begrijpen: kleur en vorm. | opstap: de opdrachten van niveau 2 in het 3de kleuterklas. | – |
 | 🎵 Rijmen | Taal | Horen welke twee woorden rijmen, kiezen uit twee (niveau 1) of drie (niveau 2). | opstap: de opdrachten van niveau 2 in het 3de kleuterklas. | – |
 
-### 🦉 3de kleuterklas (14 spelletjes)
+### 🦉 3de kleuterklas (16 spelletjes)
 
 IJkpunt: doelen voor het einde kleuteronderwijs.
 
@@ -56,6 +60,8 @@ IJkpunt: doelen voor het einde kleuteronderwijs.
 | 🔤 Beginklank | Taal | Woorden herkennen die met dezelfde klank beginnen, kiezen uit drie (niveau 1) of vier (niveau 2). | Beginklank herkennen, kiezen uit vijf. | 1.1 (na te streven) |
 | 🅰️ Letters | Taal | Letters herkennen bij de beginklank van een woord (minstens 15 letters), kiezen uit drie (niveau 1) of vier (niveau 2). | opstap: de opdrachten van niveau 2 in het 1ste leerjaar. | 1.1.4 |
 | 🙃 Wat hoort er niet bij? | Taal | Eenvoudige betekenisrelaties: welk woord hoort niet bij de groep? | opstap: de opdrachten van niveau 2 in het 1ste leerjaar. | 1.4.1 |
+| 🐨 Luisteren (KOALA-stijl) | Oefentest (optioneel) | Oefenen in de stijl van de KOALA-taalscreening: korte verhaaltjes, mededelingen en vragen begrijpen (niveau 1); ook zoek- en doe-opdrachten (niveau 2). Geen officiële test en geen score. | Doe-opdrachten in drie stappen en zoekopdrachten met vier prenten. | luistervaardigheid (te bereiken) |
+| 📯 Klaar voor het 1ste leerjaar (TOETER-stijl) | Oefentest (optioneel) | Oefenen in de stijl van de TOETER-test: klanken onderscheiden, woordjes onthouden, ordenen, sorteren, visueel vergelijken en hoeveelheden (zelfde of anders). Geen officiële test en geen score. | Vier woordjes onthouden en langere rijen vergelijken. | rekenvoorwaarden en klankbewustzijn |
 
 ### ✏️ 1ste leerjaar (11 spelletjes)
 
@@ -263,3 +269,4 @@ IJkpunt: doelen voor het einde lager onderwijs.
 - Vraag en antwoord nieuwe minimumdoelen: https://data-onderwijs.vlaanderen.be/documenten/bestanden/nieuwe-minimumdoelen-vraag-antwoord.pdf
 - Ontwerpdecreet minimumdoelen (bijlage 6): https://themis.vlaanderen.be/files/e06550f0-42b7-11f0-b11b-c75db9d5c85a/download
 - Eurydice – vreemde talen in het lager onderwijs: https://eurydice.eacea.ec.europa.eu/nl/eurypedia/belgium-flemish-community/belgie-vlaamse-gemeenschaponderwijzen-en-leren-het-lager
+- KOALA-taalscreening (Onderwijs Vlaanderen): https://www.vlaanderen.be/onderwijsprofessionals/lesgeven-en-begeleiden/toetsen-evalueren-peilen-en-screenen/koala-taalscreening-in-het-gewoon-basisonderwijs
