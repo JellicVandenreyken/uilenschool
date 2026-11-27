@@ -4,6 +4,8 @@ Educatieve game voor de **kleuterschool (1ste–3de kleuterklas)** en de **lager
 
 - 9 klassen met Rekenen, Meten en meetkunde en Taal, plus Frans, Engels en Duits vanaf het 3de leerjaar.
 - Elk spel: 5 vragen, alles wordt **voorgelezen**, 1–3 sterren, drie niveaus (⭐ begin / ⭐⭐ einde schooljaar / ⭐⭐⭐ uitdaging).
+- **Afwisselende spelvormen**: bij elke nieuwe reeks een andere vorm (kiezen, ballonnen, juist of fout, zelf intypen, zelf aantikken).
+- **Optionele oefentesten in de 3de kleuterklas**: luisteren in KOALA-stijl en taal- en rekenvoorwaarden in TOETER-stijl (geen officiële testitems, aan/uit te zetten).
 - Volledig **offline**: één HTML-bestand, geen externe bibliotheken, geen tracking.
 
 Eén spel, vier manieren om het te gebruiken. Ze delen allemaal dezelfde map `www/`.

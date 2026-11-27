@@ -146,6 +146,28 @@ table.goals th,table.goals td{text-align:left;padding:8px;border-bottom:1px soli
 .tag{display:inline-block;font-size:12px;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--wis);white-space:nowrap}
 .tag.ned{background:var(--ned)} .tag.ruimte{background:var(--ruimte)} .tag.fr{background:#e8e6ff} .tag.en{background:#ffe6ef} .tag.de{background:#fff1c7}
 .small{color:var(--soft);font-size:14px}
+/* spelvormen */
+.formchip{align-self:center;margin-top:10px;font-size:14px;color:var(--soft);background:var(--paper);border:2px solid var(--line);border-radius:99px;padding:2px 12px}
+.cand{background:#fff;border:4px dashed var(--orange);border-radius:22px;padding:10px 18px;min-width:120px;min-height:100px;display:flex;justify-content:center;align-items:center;flex-basis:100%;max-width:420px}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:360px;margin:0 auto;width:100%}
+.key{font-size:34px;min-height:68px;background:var(--paper);border:3px solid var(--line);border-radius:18px;box-shadow:0 4px 0 var(--line)}
+.key:active{transform:translateY(3px);box-shadow:none}
+.key.ok{background:var(--green);color:#fff;border-color:#1f8a56;box-shadow:0 4px 0 #1f8a56}
+.typed{font-size:56px;text-align:center;min-height:80px;line-height:72px;background:#fff;border:4px solid var(--line);border-radius:20px;max-width:360px;margin:0 auto 4px;width:100%}
+.typed.wrong{animation:shake .4s;border-color:#f3b4b4}.typed.ok{border-color:var(--green);background:#e5f8ee}
+.tapgrid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:720px}
+.tapit{font-size:clamp(40px,8vw,62px);line-height:1.1;border-radius:18px;border:4px solid transparent;padding:4px 6px;background:var(--paper)}
+.tapit.on{border-color:var(--orange);background:#ffe2d6;transform:scale(1.06)}.tapit.done{border-color:var(--green);background:#e5f8ee}
+.opts.ballon{gap:40px 18px;margin-bottom:34px}
+.opts.ballon .opt{border-radius:50% 50% 46% 46%/55% 55% 45% 45%;min-height:140px;animation:bob2 3s ease-in-out infinite;position:relative;background:#fff3c4;border-color:#f0d27a;box-shadow:inset -10px -12px 0 rgba(0,0,0,.05)}
+.opts.ballon .opt::after{content:'';position:absolute;bottom:-30px;left:50%;width:2px;height:28px;background:#b9a68a}
+.opts.ballon .opt:nth-child(2){animation-delay:.6s;background:#ffe1ea;border-color:#f3b0c3}
+.opts.ballon .opt:nth-child(3){animation-delay:1.2s;background:#dff0ff;border-color:#9cc8f0}
+.opts.ballon .opt:nth-child(4){animation-delay:1.8s;background:#e3f7dd;border-color:#a6d99a}
+.opts.ballon .opt:nth-child(5),.opts.ballon .opt:nth-child(6){animation-delay:.9s;background:#efe3ff;border-color:#c6a9f0}
+.opts.ballon .opt.right{background:#c9f2da;border-color:var(--green)}
+@keyframes bob2{50%{transform:translateY(-10px)}}
+.g-test .tile{background:#fde4d0}.tag.test{background:#fde4d0}
 </style>
 </head>
 <body>
@@ -175,6 +197,7 @@ table.goals th,table.goals td{text-align:left;padding:8px;border-bottom:1px soli
     <div class="dots" id="dots"></div>
     <button class="round say" id="sayBtn" aria-label="Nog eens horen">🔊</button>
   </div>
+  <div class="formchip" id="formChip"></div>
   <div class="prompt" id="prompt"></div>
   <div class="stage" id="stage"></div>
   <div class="opts" id="opts"></div>
@@ -203,6 +226,14 @@ table.goals th,table.goals td{text-align:left;padding:8px;border-bottom:1px soli
     <p><button class="linkbtn" id="testVoice">🔊 Test de stem</button> &nbsp; <button class="linkbtn" id="resetStars">Sterren wissen</button></p>
     <p class="small">Het niveau kies je bovenaan in het spelmenu van elke klas: ⭐ = begin van het schooljaar, ⭐⭐ = einde van het schooljaar, ⭐⭐⭐ = uitdaging (in de hoogste klas van een spel een extra moeilijke versie, anders een opstap naar de volgende klas).</p>
   </div>
+
+  <h3>Spelvormen</h3>
+  <div class="panel"><label><input type="checkbox" id="vary"> Spelvormen afwisselen</label>
+    <p class="small" style="margin:4px 0 0">Bij elke nieuwe reeks krijgt een spel een andere vorm, waar dat past: 👆 kiezen, 🎈 ballonnen (kleuters en 1ste leerjaar), ✅ juist of fout, ⌨️ zelf het getal intypen (vanaf het 1ste leerjaar) en ✋ zelf het juiste aantal aantikken (tellen). Staat het vinkje uit, dan is het altijd gewoon kiezen.</p></div>
+
+  <h3>Oefentesten 3de kleuterklas</h3>
+  <p class="small">Twee optionele oefenmodules in de groep <i>Klaar voor het 1ste leerjaar</i> van de 3de kleuterklas. <b>Luisteren (KOALA-stijl)</b> oefent wat de KOALA-taalscreening bekijkt: instructies, mededelingen, vragen en verhaaltjes begrijpen, met doe-, zoek- en kiesopdrachten. <b>TOETER-stijl</b> oefent taal- en rekenvoorwaarden: klanken onderscheiden, woordjes onthouden, ordenen, sorteren, visueel vergelijken en hoeveelheden. Het zijn geen officiële testitems en er wordt geen score of advies gegeven. De makers van KOALA benadrukken dat kleuters niet speciaal getraind hoeven te worden: gebruik deze oefeningen als spel, niet als voorbereiding onder druk.</p>
+  <div class="panel"><label><input type="checkbox" id="tKoala"> 🐨 Luisteren (KOALA-stijl)</label><label><input type="checkbox" id="tToeter"> 📯 Klaar voor het 1ste leerjaar (TOETER-stijl)</label></div>
 
   <h3>Vreemde talen</h3>
   <p class="small">Frans is verplicht in het 5de en 6de leerjaar. Frans, Engels en Duits mogen al vanaf het 3de leerjaar aangeboden worden, als de kinderen het Nederlands voldoende beheersen. Engels en Duits hebben geen minimumdoelen. Zet een vinkje uit om die oefeningen te verbergen op dit toestel.</p>
@@ -265,6 +296,8 @@ const store = {
 };
 const settings = Object.assign({ grade: null, levels: {}, rate: 0.9, voiceURI: '', sfx: true }, store.get('settings', {}));
 settings.langs = Object.assign({ fr: true, en: true, de: true }, settings.langs || {});
+settings.tests = Object.assign({ koala: true, toeter: true }, settings.tests || {});
+if (settings.vary === undefined) settings.vary = true;
 let best = store.get('best', {});
 
 /* ---------- voorlezen ---------- */
@@ -353,6 +386,7 @@ function sfx(kind) {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     if (kind === 'good') { tone(660, 0, .15); tone(880, .12, .25); }
     else if (kind === 'bad') { tone(240, 0, .25, 'triangle'); }
+    else if (kind === 'tap') { tone(520, 0, .07); }
     else if (kind === 'win') { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .13, .3)); }
   } catch (e) {}
 }
@@ -373,7 +407,7 @@ function mkOpts(ans, cands, k, render, lo) {
     for (const c of [r3(ans + d), r3(ans - d)]) { const kk = keyOf(c); if (out.length <= k && c >= lo && !seen.has(kk)) { seen.add(kk); out.push(c); } }
     d++;
   }
-  return shuffle(out).map(v => ({ html: render(v), correct: keyOf(v) === keyOf(ans) }));
+  return shuffle(out).map(v => ({ html: render(v), correct: keyOf(v) === keyOf(ans), val: v, num: render === numOpt }));
 }
 /* opties uit een vaste lijst tekst: correct + foute */
 const txtChoices = (correct, wrongs, render) => shuffle([correct, ...wrongs]).map(v => ({ html: (render || txtOpt)(v), correct: v === correct }));
@@ -429,10 +463,10 @@ function shapeSVG(o) {
   const sc = o.big === false ? 0.5 : 1, st = 'stroke="#3a2e28" stroke-width="' + (3 / sc).toFixed(1) + '"';
   return `<svg class="shape" viewBox="0 0 100 100"><g transform="translate(50 50) scale(${sc}) translate(-50 -50)">${shapeInner(o.s.n, o.c.c, st)}</g></svg>`;
 }
-function scene(pos) {
+function scene(pos, obj) {
   const table = '<rect x="30" y="52" width="100" height="10" rx="3" fill="#b07a4a"/><rect x="38" y="62" width="8" height="38" fill="#8d5e36"/><rect x="114" y="62" width="8" height="38" fill="#8d5e36"/>';
   const floor = '<line x1="2" y1="100" x2="158" y2="100" stroke="#cdb894" stroke-width="3"/>';
-  const ball = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#ef4444" stroke="#3a2e28" stroke-width="2"/><circle cx="${x - r / 3}" cy="${y - r / 3}" r="${r / 4}" fill="#fff" opacity=".7"/>`;
+  const ball = (x, y, r) => obj ? `<text x="${x}" y="${y + r * 0.75}" text-anchor="middle" font-size="${r * 2.3}">${obj}</text>` : `<circle cx="${x}" cy="${y}" r="${r}" fill="#ef4444" stroke="#3a2e28" stroke-width="2"/><circle cx="${x - r / 3}" cy="${y - r / 3}" r="${r / 4}" fill="#fff" opacity=".7"/>`;
   let after = '';
   switch (pos) {
     case 'op': after = ball(80, 41, 11); break;
@@ -646,7 +680,8 @@ G('tellen', 'wis', '🔢', 'Tellen', 'Getallen', {
 }, p => {
   const n = 1 + rnd(p.max), it = pick(ITEMS);
   return { text: `Hoeveel ${it.pl} zie je?`, stage: pile(it.e, n), cols: 3,
-    options: mkOpts(n, shuffle([n - 1, n + 1, n + 2, n - 2]), 2, numOpt, 1), right: `Ja! ${cap(qty(n, it))}.` };
+    options: mkOpts(n, shuffle([n - 1, n + 1, n + 2, n - 2]), 2, numOpt, 1), right: `Ja! ${cap(qty(n, it))}.`,
+    tap: { e: it.e, n, max: Math.min(12, Math.max(n + 2, p.max + 2)), text: `Tik op ${qty(n, it)}. Tik daarna op klaar.` } };
 });
 
 G('getalbeelden', 'wis', '🎲', 'Getalbeelden', 'Getallen', {
@@ -1822,6 +1857,128 @@ for (const lang of ['fr', 'en', 'de']) {
       options: txtChoices(a, w), right: [[base.replace('___', a), lang]] };
   });
 }
+/* ============================ OEFENMODULES 3DE KLEUTERKLAS ============================
+   In de stijl van de KOALA-taalscreening (luistervaardigheid) en de TOETER(S)-test
+   (taal- en rekenvoorwaarden). Dit zijn GEEN officiële testitems en er wordt geen score
+   gegeven: het zijn speelse oefeningen rond dezelfde vaardigheden. Beide zijn aan/uit te
+   zetten in "Voor juf, meester en ouders". */
+
+/* ---------- KOALA-stijl: luisteren ---------- */
+const KO_VERHAAL = [
+  ['Het konijntje Pluis had honger. Het huppelde naar de tuin en at een grote wortel. Daarna ging het slapen.', 'Wat at Pluis?', '🥕', ['🍎', '🧀']],
+  ['Lotte gaat naar de zee. Ze neemt haar emmer en schepje mee. Ze bouwt een groot zandkasteel.', 'Wat bouwt Lotte?', '🏰', ['🚗', '⛄']],
+  ['Het regent. Bram trekt zijn laarzen aan en neemt zijn paraplu mee. Hij springt in alle plassen.', 'Wat neemt Bram mee?', '☂️', ['🕶️', '🪁']],
+  ['De juf is jarig. De kinderen zingen een liedje en de juf krijgt een taart met kaarsjes.', 'Wat krijgt de juf?', '🎂', ['🍕', '🥕']],
+  ['De poes zit hoog in de boom. Ze durft niet naar beneden. De brandweer komt met een grote ladder.', 'Wie komt de poes helpen?', '🚒', ['🚑', '🚌']],
+  ['Opa en Mila gaan vissen. Mila vangt een kleine vis. Ze zet de vis terug in het water.', 'Wat vangt Mila?', '🐟', ['🐸', '🦆']],
+  ['Na het turnen heeft Noah dorst. Hij drinkt een groot glas melk.', 'Wat drinkt Noah?', '🥛', ['🧃', '☕']],
+  ['In de herfst vallen de blaadjes van de bomen. Sam maakt een grote hoop blaadjes en springt erin.', 'Waarin springt Sam?', '🍂', ['❄️', '🌊']],
+  ['Ella zoekt haar knuffelbeer. Hij ligt niet in haar bed. Ze vindt hem onder de tafel.', 'Wat zocht Ella?', '🧸', ['⚽', '🐶']],
+  ['Het is nacht. De uil wordt wakker en vliegt over het bos. De maan schijnt helder.', 'Wie wordt wakker in de nacht?', '🦉', ['🐔', '🐝']]
+];
+const KO_MEDEDELING = [
+  ['Morgen gaan we naar het bos. Neem je laarzen mee.', 'Wat moet je meenemen?', '👢', ['🩴', '🎩']],
+  ['Vandaag gaan we zwemmen. Vergeet je zwempak niet.', 'Wat mag je niet vergeten?', '🩱', ['🧥', '🧣']],
+  ['Morgen is het fruitdag. Iedereen brengt een stuk fruit mee.', 'Wat breng je morgen mee?', '🍎', ['🍫', '🍟']],
+  ['Het is koud buiten. Doe je handschoenen aan voor je gaat spelen.', 'Wat moet je aandoen?', '🧤', ['🩳', '🕶️']],
+  ['Na de speeltijd wassen we onze handen met zeep.', 'Waarmee was je je handen?', '🧼', ['🪥', '🍴']],
+  ['We gaan tekenen. Neem je kleurpotloden uit je bak.', 'Wat neem je uit je bak?', '🖍️', ['✂️', '📏']],
+  ['Straks komt de dokter op bezoek in de klas.', 'Wie komt er op bezoek?', '🩺', ['🚜', '🎸']]
+];
+const KO_VRAAG = [
+  ['Waarmee knip je papier?', '✂️', ['🖍️', '🥄']], ['Waarmee schrijf je?', '✏️', ['🍴', '🔑']], ['Wat doe je aan je voeten?', '👟', ['🧤', '🎩']],
+  ['Waarmee bel je iemand op?', '📱', ['📖', '⚽']], ['Waarin slaap je?', '🛏️', ['🛁', '🪑']], ['Waarmee eet je soep?', '🥄', ['✂️', '🔑']],
+  ['Waarmee open je de deur?', '🔑', ['🥄', '🧦']], ['Wat zet je op als de zon fel schijnt?', '🕶️', ['🧤', '🧣']], ['Waarin doe je je boeken voor school?', '🎒', ['🛁', '🪣']]
+];
+const KO_OBJ = [['🍎', 'de appel', 'ligt'], ['🧸', 'de beer', 'zit'], ['🐱', 'de poes', 'zit'], ['📚', 'de boeken', 'liggen'], ['⚽', 'de bal', 'ligt']];
+const KO_TAP = [['🍌', 'de banaan'], ['⚽', 'de bal'], ['🍎', 'de appel'], ['🧸', 'de beer'], ['✏️', 'het potlood'], ['🚗', 'de auto'], ['🌷', 'de bloem'], ['🐶', 'de hond']];
+
+G('koala', 'test', '🐨', 'Luisteren (KOALA-stijl)', 'Luistervaardigheid', {
+  K3: ['Oefenen in de stijl van de KOALA-taalscreening: korte verhaaltjes, mededelingen en vragen begrijpen (niveau 1); ook zoek- en doe-opdrachten (niveau 2). Geen officiële test en geen score.',
+    { kinds: ['verhaal', 'mededeling', 'vraag'], n: 3 }, { kinds: ['verhaal', 'mededeling', 'vraag', 'zoek', 'doe'], n: 4, steps: 2 }, 'luistervaardigheid (te bereiken)']
+}, p => {
+  const kind = pick(p.kinds);
+  if (kind === 'verhaal' || kind === 'mededeling') {
+    const [t, q, a, w] = pick(kind === 'verhaal' ? KO_VERHAAL : KO_MEDEDELING), ws = w.slice(0, p.n - 1);
+    const extra = p.n > 3 ? pick(['🚲', '🎈', '🍦', '🐢'].filter(x => x !== a && !w.includes(x))) : null;
+    const opts = shuffle([a, ...ws, ...(extra ? [extra] : [])]);
+    return { text: kind === 'verhaal' ? `Luister naar het verhaaltje. ${q}` : `Luister goed naar de juf. ${q}`, say: `${t} ... ${q}`,
+      stage: `<div class="bigemo" data-say="${t} ... ${q}">${kind === 'verhaal' ? '📖' : '👩‍🏫'}</div>`, cols: opts.length === 4 ? 4 : 3,
+      options: opts.map(e => ({ html: emoOpt(e), correct: e === a })) };
+  }
+  if (kind === 'vraag') {
+    const [q, a, w] = pick(KO_VRAAG), extra = p.n > 3 ? pick(['🚲', '🎈', '🍦', '🐢']) : null, opts = shuffle([a, ...w, ...(extra ? [extra] : [])]);
+    return { text: q, stage: '', cols: opts.length === 4 ? 4 : 3, options: opts.map(e => ({ html: emoOpt(e), correct: e === a })) };
+  }
+  if (kind === 'zoek') {
+    const [e, nm, ww] = pick(KO_OBJ), pos = pick(['op', 'onder', 'naast']), other = pick(KO_OBJ.filter(o => o[0] !== e));
+    const poss = ['op', 'onder', 'naast'].filter(x => x !== pos);
+    const items = shuffle([[e, pos, true], ...poss.map(x => [e, x, false]), [other[0], pos, false]]);
+    return { text: `Zoek de prent waar ${nm} ${pos} de tafel ${ww}.`, stage: '', cols: 4, options: items.map(([o, ps, ok]) => ({ html: scene(ps, o), correct: ok })) };
+  }
+  const n = p.steps || 2, pool = sample(KO_TAP, 4), seq = pool.slice(0, n);
+  const words = ['eerst', 'dan', 'en daarna'];
+  const text = 'Tik ' + seq.map((x, i) => `${words[i]} op ${x[1]}`).join(', ') + '.';
+  const opts = shuffle(pool);
+  return { text, stage: '', cols: 4, seq: true, noTF: true, options: opts.map(x => ({ html: emoOpt(x[0]), correct: seq.includes(x), order: seq.indexOf(x) })) };
+});
+
+/* ---------- TOETER-stijl: taal- en rekenvoorwaarden ---------- */
+const TO_PAREN = [['kat', 'kam'], ['bal', 'bal'], ['pen', 'pin'], ['vis', 'vis'], ['huis', 'muis'], ['beer', 'peer'], ['tak', 'tas'], ['boom', 'boom'], ['mes', 'mus'], ['deur', 'deur'], ['pan', 'pen'], ['roos', 'roos'], ['bed', 'bad'], ['kip', 'kip']];
+const TO_WOORD = Object.values(VOCAB).flat().filter(x => !x[2]);
+G('toeter', 'test', '📯', 'Klaar voor het 1ste leerjaar (TOETER-stijl)', 'Taal- en rekenvoorwaarden', {
+  K3: ['Oefenen in de stijl van de TOETER-test: klanken onderscheiden, woordjes onthouden, ordenen, sorteren, visueel vergelijken en hoeveelheden (zelfde of anders). Geen officiële test en geen score.',
+    { kinds: ['klank', 'geheugen', 'orde', 'sorteer', 'zelfde', 'hoeveel'], mem: 2, neg: false }, { kinds: ['klank', 'geheugen', 'orde', 'sorteer', 'zelfde', 'hoeveel'], mem: 3, neg: true }, 'rekenvoorwaarden en klankbewustzijn']
+}, p => {
+  const kind = pick(p.kinds);
+  if (kind === 'klank') {
+    const [a, b] = pick(TO_PAREN), same = a === b;
+    return { text: 'Luister goed. Klinken de twee woorden hetzelfde?', say: `Luister goed. ${a} ... ${b}. Klinken ze hetzelfde? Tik op de twee groene bolletjes als ze hetzelfde klinken. Tik op groen en rood als ze anders klinken.`,
+      stage: `<div class="bigemo" data-say="${a} ... ${b}">👂</div>`, cols: 2, noTF: true,
+      options: [{ html: emoOpt('🟢🟢'), correct: same }, { html: emoOpt('🟢🔴'), correct: !same }], right: same ? 'Ze klinken hetzelfde.' : `${cap(a)} en ${b} klinken anders.` };
+  }
+  if (kind === 'geheugen') {
+    const words = sample(TO_WOORD, p.mem + 2), said = words.slice(0, p.mem), notSaid = words.slice(p.mem);
+    const list = said.map(w => w[1].replace(/^(de|het) /, '')).join('... ');
+    if (p.neg) {
+      const odd = notSaid[0], opts = shuffle([...said, odd]);
+      return { text: 'Luister goed. Welke prent heb je NIET gehoord?', say: `Luister goed. ${list}. Welke prent heb je niet gehoord?`, stage: `<div class="bigemo" data-say="${list}">👂</div>`,
+        cols: opts.length === 4 ? 4 : 3, options: opts.map(w => ({ html: emoOpt(w[0]), correct: w === odd })) };
+    }
+    const t = pick(said), opts = shuffle([t, ...notSaid]);
+    return { text: 'Luister goed. Welke prent heb je gehoord?', say: `Luister goed. ${list}. Welke prent heb je gehoord?`, stage: `<div class="bigemo" data-say="${list}">👂</div>`,
+      cols: 3, options: opts.map(w => ({ html: emoOpt(w[0]), correct: w === t })) };
+  }
+  if (kind === 'orde') {
+    const e = pick(['🐻', '🌳', '🏠', '🐟', '🍎', '⭐']), up = Math.random() < .5, sz = [28, 42, 58, 76, 96], seq = up ? sz.slice(0, 3) : sz.slice(2).reverse(), ans = up ? sz[3] : sz[1];
+    const opts = shuffle([ans, seq[0], seq[1]]); /* foute keuzes zijn altijd duidelijk fout: ze horen eerder in de rij */
+    return { text: up ? 'Van klein naar groot. Welke komt er nu?' : 'Van groot naar klein. Welke komt er nu?',
+      stage: '<div class="seq">' + seq.map(s => `<span class="card" style="font-size:${s}px">${e}</span>`).join('') + '<span class="card q">?</span></div>', cols: 3,
+      options: opts.map(s => ({ html: `<span style="font-size:${s}px;line-height:1">${e}</span>`, correct: s === ans })) };
+  }
+  if (kind === 'sorteer') {
+    const th = pick(NIETBIJ), grp = sample(VOCAB[th], 4), others = sample(NIETBIJ.filter(x => x !== th), 2).map(x => pick(VOCAB[x])), t = grp[3];
+    const opts = shuffle([t, ...others]);
+    return { text: 'Welke prent hoort bij deze groep?', stage: '<div class="seq">' + grp.slice(0, 3).map(w => `<span class="card">${w[0]}</span>`).join('') + '</div>', cols: 3,
+      options: opts.map(w => ({ html: emoOpt(w[0]), correct: w === t })), right: `Ja! ${cap(t[1])} hoort bij ${THEME_LABEL[th]}.` };
+  }
+  if (kind === 'zelfde') {
+    const pal = sample(['🔴', '🔵', '🟡', '🟢', '🟣', '🟠'], 3), n = p.neg ? 4 : 3, row = Array.from({ length: n }, () => pick(pal));
+    while (new Set(row).size < 2) row[rnd(n)] = pick(pal);
+    const key = r => r.join(''), seen = new Set([key(row)]), wrongs = [];
+    let guard = 0; while (wrongs.length < 3 && guard++ < 100) { const w = row.slice(); const i = rnd(n); w[i] = pick(pal.filter(c => c !== w[i])); if (Math.random() < .4) { const j = rnd(n); [w[i], w[j]] = [w[j], w[i]]; } if (!seen.has(key(w))) { seen.add(key(w)); wrongs.push(w); } }
+    const opts = shuffle([row, ...wrongs]);
+    return { text: 'Welke rij is precies hetzelfde als de bovenste?', stage: `<div class="bigemo" style="font-size:44px">${key(row)}</div>`, cols: 2,
+      options: opts.map(r => ({ html: `<span style="font-size:clamp(26px,5vw,40px)">${key(r)}</span>`, correct: r === row })) };
+  }
+  const a = rint(3, 7), kindH = pick(['zelfde', 'meer', 'minder']), b = kindH === 'zelfde' ? a : kindH === 'meer' ? a - rint(1, 2) : a + rint(1, 2);
+  const rowA = `<div style="display:flex;gap:28px;font-size:30px">${'<span>🔵</span>'.repeat(a)}</div>`;
+  const rowB = `<div style="display:flex;gap:4px;font-size:30px">${'<span>🔴</span>'.repeat(b)}</div>`;
+  const ans = a === b ? 'zelfde' : a > b ? 'boven' : 'onder';
+  return { text: 'Zijn er meer blauwe of meer rode bolletjes? Of zijn het er evenveel?', say: 'Zijn er meer blauwe bolletjes, meer rode bolletjes, of zijn het er evenveel? Tik op de blauwe bol voor meer blauwe, op de rode bol voor meer rode, en op het gelijkteken voor evenveel.',
+    stage: `<div style="display:flex;flex-direction:column;gap:18px;align-items:center">${rowA}${rowB}</div>`, cols: 3, noTF: true,
+    options: [['boven', '🔵'], ['onder', '🔴'], ['zelfde', '🟰']].map(([k, e]) => ({ html: emoOpt(e), correct: k === ans })), right: a === b ? 'Het zijn er evenveel, ook al staan ze anders.' : '' };
+});
 /* =====================================================================
    Niveau 3 – uitdaging
    Voor de hoogste klas van elk spel staat hier een eigen uitdaging.
@@ -1870,6 +2027,11 @@ const N3 = {
   woordsoorten: { L6: [{ cats: ['pvnw', 'bvnw', 'zn', 'ww', 'bn', 'lw', 'tw', 'vz', 'vw'], any: true }, 'Alle woordsoorten door elkaar, ook voornaamwoorden.'] },
   begrijpendlezen: { L6: [{ b: 'X', q: [0, 1] }, 'Feit of mening, tekstdoel en tekstsoort herkennen.'] }
 };
+N3.koala = { K3: [{ kinds: ['zoek', 'doe', 'verhaal', 'mededeling'], n: 4, steps: 3 }, 'Doe-opdrachten in drie stappen en zoekopdrachten met vier prenten.'] };
+N3.toeter = { K3: [{ kinds: ['klank', 'geheugen', 'orde', 'sorteer', 'zelfde', 'hoeveel'], mem: 4, neg: true }, 'Vier woordjes onthouden en langere rijen vergelijken.'] };
+/* spelletjes waarbij "juist of fout" niet werkt (je moet alle keuzes samen zien) */
+['meerminder', 'vergelijken', 'nietbij'].forEach(id => { const g = GAMES.find(x => x.id === id); if (g) g.noTF = true; });
+GAMES.filter(x => ['koala', 'toeter'].includes(x.id)).forEach(x => { x.test = x.id; });
 for (const l of ['fr', 'en', 'de']) {
   N3[l + '_woordjes'] = { L5: [{ n: 6, same: true }, 'Kiezen uit zes prenten van hetzelfde thema.'] };
   N3[l + '_lezen'] = { L6: [{ n: 6, same: true, silent: true }, 'Zelf lezen zonder voorlezen, kiezen uit zes prenten.'] };
@@ -1891,7 +2053,8 @@ const GR = id => GRADES.find(g => g.id === id);
 const IJK = id => id[0] === 'K' ? 'einde kleuteronderwijs' : ['L1', 'L2', 'L3', 'L4'].includes(id) ? 'einde 4de leerjaar' : 'einde lager onderwijs';
 const IJKG = { K3: 1, L4: 1, L6: 1 };
 const AREAS = [{ id: 'wis', title: 'Rekenen', ico: '🔢' }, { id: 'ruimte', title: 'Meten en meetkunde', ico: '🧭' }, { id: 'ned', title: 'Taal', ico: '💬' },
-  { id: 'fr', title: 'Frans', ico: '🇫🇷' }, { id: 'en', title: 'Engels', ico: '🇬🇧' }, { id: 'de', title: 'Duits', ico: '🇩🇪' }];
+  { id: 'fr', title: 'Frans', ico: '🇫🇷' }, { id: 'en', title: 'Engels', ico: '🇬🇧' }, { id: 'de', title: 'Duits', ico: '🇩🇪' },
+  { id: 'test', title: 'Klaar voor het 1ste leerjaar (oefentesten)', ico: '🎒' }];
 const AREAS_K = { ruimte: 'Ruimte en vormen' };
 const PRAISE = ['Super!', 'Goed zo!', 'Knap!', 'Prima!', 'Hoera!', 'Dat klopt!', 'Fantastisch!', 'Schitterend!'];
 const RETRY = ['Probeer nog eens.', 'Bijna! Kijk nog eens goed.', 'Oei, nog een keer proberen.'];
@@ -1899,7 +2062,7 @@ const ROUNDS = 5;
 let cur = null;
 
 const levelOf = gid => settings.levels[gid] || 1;
-const gamesFor = gid => GAMES.filter(x => x.grades[gid] && (!x.lang || settings.langs[x.lang] !== false));
+const gamesFor = gid => GAMES.filter(x => x.grades[gid] && (!x.lang || settings.langs[x.lang] !== false) && (!x.test || settings.tests[x.test] !== false));
 const save = () => store.set('settings', settings);
 function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); window.scrollTo(0, 0); }
 function starHTML(n) { return [0, 1, 2].map(i => i < n ? '<b>★</b>' : '★').join(''); }
@@ -1921,9 +2084,38 @@ function renderMenu() {
 }
 function openGrade(id) { settings.grade = id; save(); renderMenu(); show('menu'); }
 
+/* ---------- spelvormen: bij elke nieuwe reeks een andere vorm ---------- */
+const FORMS = { kies: ['👆', 'Kiezen'], ballon: ['🎈', 'Ballonnen'], juistfout: ['✅', 'Juist of fout?'], typ: ['⌨️', 'Zelf intypen'], tik: ['✋', 'Zelf aantikken'] };
+const typAble = q => !q.seq && q.options.length > 1 && q.options.every(o => o.num && Number.isInteger(o.val) && o.val >= 0 && o.val < 1e7);
+function formsFor(game, g, L) {
+  const f = ['kies'];
+  if (settings.vary === false) return f;
+  const qs = []; try { for (let i = 0; i < 8; i++) qs.push(makeQ(game, g, L)); } catch (e) { return f; }
+  if (qs.every(q => q.tap)) f.push('tik');
+  if (g.read < 2) f.push('ballon');
+  if (!game.noTF && qs.filter(q => !q.seq && !q.noTF).length >= 6) f.push('juistfout');
+  if (g.read >= 1 && qs.every(typAble)) f.push('typ');
+  return f;
+}
+function transformQ(q, form, g) {
+  if (form === 'juistfout' && !q.seq && !q.noTF) {
+    const cand = Math.random() < .5 ? q.options.find(o => o.correct) : pick(q.options.filter(o => !o.correct));
+    /* zinsdelen: de zin bovenaan tonen, één zinsdeel beoordelen */
+    if (q.cols === 'flex') q = Object.assign({}, q, { stage: `<div class="sentence">${q.options.map(o => o.html.replace(/<[^>]+>/g, '')).join(' ').replace(' .', '.')}</div>` });
+    const lab = (e, w) => `<span class="emo">${e}</span>${g.read >= 2 ? `<span class="txt">&nbsp;${w}</span>` : ''}`;
+    return Object.assign({}, q, { form, text: q.text + ' Is dit juist?', say: Array.isArray(q.say) ? [...q.say, ['Is dit juist?']] : (q.say || q.text) + ' Is dit juist?',
+      stage: (q.stage || '') + `<div class="cand">${cand.html}</div>`, cols: 2, tx: 0,
+      options: [{ html: lab('✅', 'Ja, juist'), correct: !!cand.correct }, { html: lab('❌', 'Nee, fout'), correct: !cand.correct }] });
+  }
+  if (form === 'typ' && typAble(q)) return Object.assign({}, q, { form, keypad: true, ans: q.options.find(o => o.correct).val });
+  if (form === 'tik' && q.tap) return Object.assign({}, q, { form, tapq: true, text: q.tap.text, say: q.tap.text, stage: '' });
+  return Object.assign({}, q, { form: form === 'ballon' ? 'ballon' : 'kies' });
+}
 function startGame(id) {
-  const g = GR(settings.grade);
-  cur = { game: GAMES.find(x => x.id === id), g, L: levelOf(g.id), idx: 0, score: 0, results: [], seen: new Set() };
+  const g = GR(settings.grade), game = GAMES.find(x => x.id === id), L = levelOf(g.id);
+  const forms = formsFor(game, g, L), fk = game.id + '_' + g.id, rot = store.get('forms', {}), idx = rot[fk] || 0;
+  rot[fk] = idx + 1; store.set('forms', rot);
+  cur = { game, g, L, form: forms[idx % forms.length], idx: 0, score: 0, results: [], seen: new Set() };
   show('play'); nextQ();
 }
 /* niveau 3: eigen uitdaging (N3) of opstap naar de volgende klas waarin het spel bestaat */
@@ -1950,7 +2142,7 @@ function nextQ() {
   let q, tries = 0;
   do { q = makeQ(cur.game, cur.g, cur.L); tries++; } while (cur.seen.has(q.text + q.stage) && tries < 8);
   cur.seen.add(q.text + q.stage);
-  cur.q = q; cur.first = true; cur.locked = false; renderQ();
+  cur.q = transformQ(q, cur.form, cur.g); cur.first = true; cur.locked = false; cur.step = 0; cur.typed = ''; renderQ();
 }
 function renderDots() {
   $('#dots').innerHTML = Array.from({ length: ROUNDS }, (_, i) =>
@@ -1962,23 +2154,66 @@ function renderQ() {
   $('#stage').innerHTML = q.stage || '';
   $('#stage').style.display = q.stage ? '' : 'none';
   const box = $('#opts');
-  box.className = 'opts ' + (q.cols === 'flex' ? 'flex' : 'c' + (q.cols || 3)) + (q.tx ? ' tx' : '');
-  box.innerHTML = q.options.map((o, i) => `<button class="opt" data-i="${i}">${o.html}</button>`).join('');
+  const fc = FORMS[cur.form] || FORMS.kies; $('#formChip').textContent = fc[0] + ' ' + fc[1];
+  if (q.keypad) {
+    box.className = 'opts c1';
+    box.innerHTML = `<div class="typed" id="typed">&nbsp;</div><div class="keypad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '⌫', 0, '✔'].map(k => `<button class="key ${k === '✔' ? 'ok' : ''}" data-key="${k}">${k}</button>`).join('')}</div>`;
+  } else if (q.tapq) {
+    $('#stage').style.display = '';
+    $('#stage').innerHTML = `<div class="tapgrid">${Array.from({ length: q.tap.max }, (_, i) => `<button class="tapit" data-tap="${i}">${q.tap.e}</button>`).join('')}</div>`;
+    box.className = 'opts c1';
+    box.innerHTML = `<button class="bigbtn" id="tapDone" style="justify-self:center">✔ Klaar</button>`;
+  } else {
+    box.className = 'opts ' + (q.cols === 'flex' ? 'flex' : 'c' + (q.cols || 3)) + (q.tx ? ' tx' : '') + (q.form === 'ballon' ? ' ballon' : '');
+    box.innerHTML = q.options.map((o, i) => `<button class="opt" data-i="${i}">${o.html}</button>`).join('');
+  }
   renderDots();
   say(q.say || q.text);
 }
 function answer(i, btn) {
-  if (!cur || cur.locked || btn.classList.contains('wrong')) return;
+  if (!cur || cur.locked || btn.classList.contains('wrong') || btn.classList.contains('right')) return;
   const o = cur.q.options[i];
-  if (o.correct) {
-    cur.locked = true; btn.classList.add('right'); sfx('good');
+  if (cur.q.seq) {
+    if (o.order === cur.step) {
+      btn.classList.add('right'); cur.step++;
+      if (cur.step < cur.q.options.filter(x => x.correct).length) { sfx('good'); return; }
+      return result(true, null);
+    }
+    cur.first = false; cur.step = 0; btn.classList.add('wrong'); sfx('bad');
+    document.querySelectorAll('#opts .opt.right').forEach(b => b.classList.remove('right'));
+    setTimeout(() => btn.classList.remove('wrong'), 700);
+    say('Oei, opnieuw. Luister goed.'); say(cur.q.say || cur.q.text, true); return;
+  }
+  result(o.correct, btn);
+}
+function result(ok, btn) {
+  if (ok) {
+    cur.locked = true; if (btn) btn.classList.add('right'); sfx('good');
     cur.results[cur.idx] = cur.first ? 2 : 1; if (cur.first) cur.score++;
     if (Array.isArray(cur.q.right)) say([[pick(PRAISE)], ...cur.q.right]); else say(pick(PRAISE) + ' ' + (cur.q.right || ''));
     setTimeout(() => { if (!cur || !document.getElementById('play').classList.contains('on')) return; cur.idx++; nextQ(); }, 1900);
   } else {
-    cur.first = false; btn.classList.add('wrong'); sfx('bad');
+    cur.first = false; if (btn) btn.classList.add('wrong'); sfx('bad');
     say(pick(RETRY)); say(cur.q.say || cur.q.text, true);
   }
+}
+function keyPress(k) {
+  if (!cur || cur.locked) return;
+  const box = $('#typed');
+  if (k === '⌫') cur.typed = cur.typed.slice(0, -1);
+  else if (k === '✔') {
+    if (!cur.typed) return;
+    if (cur.typed === String(cur.q.ans)) { box.classList.add('ok'); return result(true, null); }
+    box.classList.remove('wrong'); void box.offsetWidth; box.classList.add('wrong'); cur.typed = ''; box.innerHTML = '&nbsp;'; return result(false, null);
+  } else if (cur.typed.length < 7) cur.typed += k;
+  box.classList.remove('wrong'); box.textContent = cur.typed ? fmt(+cur.typed) : '\u00a0';
+}
+function tapDone() {
+  if (!cur || cur.locked) return;
+  const n = document.querySelectorAll('.tapit.on').length;
+  if (n === cur.q.tap.n) { document.querySelectorAll('.tapit.on').forEach(b => b.classList.add('done')); return result(true, null); }
+  result(false, null);
+  if (n > cur.q.tap.n) say('Dat zijn er te veel. Tik er een paar weer uit.', true); else say('Dat zijn er nog te weinig.', true);
 }
 function finish() {
   const s = cur.score >= 5 ? 3 : cur.score >= 3 ? 2 : 1, key = cur.game.id + '_' + cur.g.id + '_' + cur.L;
@@ -2021,6 +2256,7 @@ function renderLangs() {
       <span class="small">${v ? '✅ stem gevonden: ' + v.name + ' (' + v.lang + ')' : '⚠️ geen ' + LANGS[l].name.toLowerCase().replace('frans', 'Franse').replace('engels', 'Engelse').replace('duits', 'Duitse') + ' stem op dit toestel: de woorden worden dan op het scherm getoond in plaats van voorgelezen.'}</span></div>`; }).join('');
 }
 function renderGrown() {
+  $('#vary').checked = settings.vary !== false; $('#tKoala').checked = settings.tests.koala !== false; $('#tToeter').checked = settings.tests.toeter !== false;
   $('#rate').value = settings.rate; $('#sfx').checked = settings.sfx; fillVoiceSelect(); renderLangs(); $('#voiceHelp').textContent = VOICE_HELP;
   $('#goalGrade').innerHTML = GRADES.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
   $('#goalGrade').value = settings.grade || 'K3';
@@ -2034,6 +2270,9 @@ document.addEventListener('click', e => {
   const t = e.target.closest('[data-game]'); if (t) return startGame(t.dataset.game);
   const lv = e.target.closest('[data-level]'); if (lv) { settings.levels[settings.grade] = +lv.dataset.level; save(); return renderMenu(); }
   const o = e.target.closest('.opt'); if (o) return answer(+o.dataset.i, o);
+  const ky = e.target.closest('[data-key]'); if (ky) return keyPress(ky.dataset.key);
+  const tp = e.target.closest('[data-tap]'); if (tp) { if (cur && !cur.locked) { tp.classList.toggle('on'); sfx('tap'); } return; }
+  if (e.target.closest('#tapDone')) return tapDone();
   const s = e.target.closest('[data-say]'); if (s) return say(s.dataset.sayl ? [[s.dataset.say, s.dataset.sayl]] : s.dataset.say);
   const gw = e.target.closest('[data-grown]'); if (gw) { grownBack = document.querySelector('.screen.on').id; renderGrown(); return show('grown'); }
 });
@@ -2044,6 +2283,9 @@ $('#rewardHome').onclick = () => { renderMenu(); show('menu'); };
 $('#againBtn').onclick = () => startGame(cur.game.id);
 $('#grownHome').onclick = () => { if (grownBack === 'menu') renderMenu(); else renderHome(); show(grownBack === 'menu' ? 'menu' : 'home'); };
 $('#goalGrade').onchange = renderGoals;
+$('#vary').onchange = e => { settings.vary = e.target.checked; save(); };
+$('#tKoala').onchange = e => { settings.tests.koala = e.target.checked; save(); renderGoals(); };
+$('#tToeter').onchange = e => { settings.tests.toeter = e.target.checked; save(); renderGoals(); };
 $('#langList').onchange = e => { const c = e.target.closest('[data-lang]'); if (!c) return; settings.langs[c.dataset.lang] = c.checked; save(); renderGoals(); };
 $('#rate').oninput = e => { settings.rate = +e.target.value; save(); };
 $('#voice').onchange = e => { settings.voiceURI = e.target.value; save(); };
@@ -2053,7 +2295,7 @@ $('#resetStars').onclick = () => { if (confirm('Alle sterren op dit toestel wiss
 
 renderHome();
 if (settings.grade && GR(settings.grade)) { renderMenu(); show('menu'); }
-window.__uil = { GAMES, GRADES, makeQ, paramsFor, n3Text };
+window.__uil = { GAMES, GRADES, makeQ, paramsFor, n3Text, formsFor, transformQ, typAble };
 </script>
 <script>
 // Offline-ondersteuning als web-app (niet nodig in de Android/iPhone-app zelf).
